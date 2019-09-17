@@ -298,7 +298,17 @@ class _TicketsState extends State<Tickets> {
 }
 
 Future<String> _asyncInputDialog(BuildContext context) async {
+  final GlobalKey<FormState> _registrationFormKey = GlobalKey<FormState>();
+
   String nodeId = '';
+
+  final Map<String, dynamic> _registrationFormData = {
+    'email': null,
+    'password': null,
+    'userId': null,
+    'PersonalId': null,
+    'telephone': null
+  };
   return showDialog<String>(
     context: context,
     barrierDismissible:

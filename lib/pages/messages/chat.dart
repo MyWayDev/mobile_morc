@@ -111,8 +111,8 @@ class ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
-    subAdd?.cancel();
     super.dispose();
+    subAdd?.cancel();
   }
 
   void onFocusChange() {
@@ -195,7 +195,7 @@ var documentReference = Firestore.instance
               '/${widget.ticketId}/$groupChatId/${DateTime.now().millisecondsSinceEpoch.toString()}')
           .set({
         'idFrom': widget.id,
-        'idTo': peerId,
+        'idTo': peerId.toString(),
         'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
         'content': content,
         'type': type

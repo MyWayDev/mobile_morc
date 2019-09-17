@@ -49,7 +49,6 @@ class _RegistrationPage extends State<RegistrationPage> {
   Future initlegacyData(String distrid) async {
     User user = await model.memberJson(distrid);
     legacyDataExists(user);
-
     setState(() {
       _legacyData = user;
       _legacyData.email = _registrationFormData['email'];
