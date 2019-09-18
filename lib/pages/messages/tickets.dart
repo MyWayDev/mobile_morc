@@ -303,7 +303,7 @@ Future<String> _asyncInputDialog(BuildContext context) async {
   String nodeId = '';
 
   final Map<String, dynamic> _registrationFormData = {
-    'email': null,
+    'name': null,
     'password': null,
     'userId': null,
     'PersonalId': null,
@@ -319,7 +319,7 @@ Future<String> _asyncInputDialog(BuildContext context) async {
         content: new Row(
           children: <Widget>[
             new Expanded(
-                child: new TextField(
+                child: new TextFormField(
               autofocus: true,
               decoration:
                   new InputDecoration(labelText: 'member', hintText: '367'),
