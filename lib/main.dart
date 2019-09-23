@@ -2,27 +2,19 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show Platform;
 import 'dart:math';
-import 'dart:typed_data';
-
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:mor_release/bottom_nav.dart';
-import 'package:mor_release/models/user.dart';
-import 'package:mor_release/pages/items/itemDetails/details.dart';
 import 'package:mor_release/pages/items/items.dart';
 import 'package:mor_release/pages/items/items.tabs.dart';
 import 'package:mor_release/models/ticket.dart';
 import 'package:mor_release/pages/messages/local_note.dart';
-import 'package:mor_release/pages/messages/local_sub.dart';
+
 import 'package:mor_release/pages/order/end_order.dart';
 import 'package:mor_release/pages/order/order.dart';
-import 'package:mor_release/pages/user/lock_screen.dart';
 import 'package:mor_release/scoped/connected.dart';
-import 'package:mor_release/scoped/fcm.dart';
-
-import 'package:mor_release/widgets/save_dialog.dart';
-import 'package:mor_release/widgets/switch_page.dart';
 import './pages/user/registration_page.dart';
 import './pages/user/login_screen.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -45,7 +37,7 @@ class MyApp extends StatefulWidget {
 
 class _MyApp extends State<MyApp> {
   final MainModel model = MainModel();
-  final FcmModel _fcm = FcmModel();
+
   Random random = Random();
   static final FirebaseDatabase database = FirebaseDatabase.instance;
   final DatabaseReference databaseReference = database.reference();
@@ -86,11 +78,10 @@ class _MyApp extends State<MyApp> {
     int _random = random.nextInt(10000);
     firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> msg) async {
-        note.showImageNotificaton(
+        note.showOngoingNotification(
           notify,
           title: msg['notification']['title'],
           body: msg['notification']['body'],
-          image: msg['notification']['image'],
           id: _random,
         );
 
@@ -206,6 +197,7 @@ class _MyApp extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     model.settingsData();
+    //model.getTicketTypes();
     return ScopedModel<MainModel>(
       model: model,
       child: MaterialApp(

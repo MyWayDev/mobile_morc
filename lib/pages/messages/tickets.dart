@@ -1,12 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:groovin_material_icons/groovin_material_icons.dart';
 import 'package:mor_release/models/ticket.dart';
 import 'package:mor_release/models/user.dart';
 import 'package:mor_release/pages/const.dart';
 import 'package:mor_release/pages/messages/chat.dart';
 import 'package:mor_release/scoped/connected.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:searchable_dropdown/searchable_dropdown.dart';
 
 class Tickets extends StatefulWidget {
   final int distrId;
@@ -18,8 +21,8 @@ class Tickets extends StatefulWidget {
 class _TicketsState extends State<Tickets> {
   List<Ticket> ticketsData = List();
   List<Ticket> filteredTickets = [];
-
   String path = "flamelink/environments/stage/content/support/en-US";
+
   FirebaseDatabase database = FirebaseDatabase.instance;
 
   DatabaseReference databaseReference;
@@ -28,10 +31,28 @@ class _TicketsState extends State<Tickets> {
   var subChanged;
   var subDel;
   var subSelect;
+  List<DropdownMenuItem> items = [];
+  String selectedValue;
+
+  TextEditingController controller = new TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final Ticket _newTicketForm = Ticket(
+      id: null,
+      ticketId: null,
+      type: null,
+      user: null,
+      member: null,
+      open: null,
+      openDate: null,
+      closeDate: null,
+      docId: null,
+      content: null,
+      items: null);
+
   @override
   void initState() {
     super.initState();
-    print('ticket distrId: ${widget.distrId}');
+    getTicketTypes();
     databaseReference = database.reference().child(path);
     widget.distrId != 1
         ? query = databaseReference
@@ -39,9 +60,6 @@ class _TicketsState extends State<Tickets> {
             .orderByChild('user')
             .equalTo(widget.distrId.toString())
         : query = databaseReference.child("/");
-    // Query queryII = query.orderByChild('open').equalTo(true).limitToLast(2);
-
-    //subSelect = query.onValue.listen(_onData);
     subAdd = query.onChildAdded.listen(_onItemEntryAdded);
     subChanged = query.onChildChanged.listen(_onItemEntryChanged);
     subDel = query.onChildRemoved.listen(_onItemEntryDeleted);
@@ -53,6 +71,80 @@ class _TicketsState extends State<Tickets> {
     subAdd?.cancel();
     subChanged?.cancel();
     subDel?.cancel();
+    subSelect?.cancel();
+  }
+
+  Widget buildDetails(String tType) {
+    return AlertDialog(
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(
+            Icons.close,
+            color: Colors.pink[900],
+            size: 32,
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        )
+      ],
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: TextFormField(
+                decoration: InputDecoration(
+                    labelText: tType,
+                    icon: Icon(
+                      Icons.view_list,
+                      color: Colors.pink[900],
+                    )),
+                enabled: false,
+                controller: controller,
+                onSaved: (String value) {
+                  _newTicketForm.type = tType;
+                },
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: TextFormField(
+                decoration: InputDecoration(
+                    labelText: 'docId',
+                    icon: Icon(
+                      GroovinMaterialIcons.file,
+                      color: Colors.pink[700],
+                    )),
+                enabled: false,
+                controller: controller,
+                onSaved: (String value) {
+                  _newTicketForm.type = value;
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: IconButton(
+                color: Colors.green,
+                icon: Icon(
+                  Icons.check_circle,
+                  color: Colors.green,
+                  size: 34,
+                ),
+                onPressed: () {
+                  if (_formKey.currentState.validate()) {
+                    _formKey.currentState.save();
+                  }
+                },
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -183,31 +275,6 @@ class _TicketsState extends State<Tickets> {
                     !ticket.open ? Colors.greenAccent[100] : Colors.pink[100],
                 child: Row(
                   children: <Widget>[
-                    /* Material(
-              child: ticket. != null
-                  ? CachedNetworkImage(
-                      placeholder: (context, url) => Container(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 1.0,
-                          valueColor: AlwaysStoppedAnimation<Color>(themeColor),
-                        ),
-                        width: 50.0,
-                        height: 50.0,
-                        padding: EdgeInsets.all(15.0),
-                      ),
-                      imageUrl: ticket['Photo'],
-                      width: 50.0,
-                      height: 50.0,
-                      fit: BoxFit.cover,
-                    )
-                  : Icon(
-                      Icons.tag_faces,
-                      size: 50.0,
-                      color: greyColor,
-                    ),
-              borderRadius: BorderRadius.all(Radius.circular(25.0)),
-              clipBehavior: Clip.hardEdge,
-            ),*/
                     Flexible(
                       child: Container(
                         child: Column(
@@ -265,11 +332,7 @@ class _TicketsState extends State<Tickets> {
 
   void _onItemEntryAdded(Event event) {
     ticketsData.add(Ticket.fromSnapshot(event.snapshot));
-    print('tickets length:${ticketsData.first.ticketId}');
     setState(() {});
-    //ticketsData.add(Ticket.fromSnapshot(event.snapshot));
-    // items.where((i) => !i.disabled).forEach((f) => itemData.add(f));
-    //print("itemData length:${itemData.length}");
   }
 
   void _onItemEntryDeleted(Event event) {
@@ -279,10 +342,6 @@ class _TicketsState extends State<Tickets> {
     setState(() {
       ticketsData.remove(ticketsData[ticketsData.indexOf(tick)]);
     });
-
-    //ticketsData.add(Ticket.fromSnapshot(event.snapshot));
-    // items.where((i) => !i.disabled).forEach((f) => itemData.add(f));
-    //print("itemData length:${itemData.length}");
   }
 
   void _onItemEntryChanged(Event event) {
@@ -294,50 +353,100 @@ class _TicketsState extends State<Tickets> {
           Ticket.fromSnapshot(event.snapshot);
     });
   }
-  //void _onData(Event event) {}
-}
 
-Future<String> _asyncInputDialog(BuildContext context) async {
-  final GlobalKey<FormState> _registrationFormKey = GlobalKey<FormState>();
+  void getTicketTypes() async {
+    DataSnapshot snapshot = await database
+        .reference()
+        .child('flamelink/environments/stage/content/ticketType/en-US/')
+        .once();
+    Map<dynamic, dynamic> typeList = snapshot.value;
+    List list = typeList.values.toList();
+    List<TicketType> types = list.map((f) => TicketType.toJosn(f)).toList();
+    String valueConcat(String type, bool docBased) {
+      var pValue = "${docBased.toString().substring(0, 1)}$type";
+      print(pValue);
+      return pValue;
+    }
 
-  String nodeId = '';
-
-  final Map<String, dynamic> _registrationFormData = {
-    'name': null,
-    'password': null,
-    'userId': null,
-    'PersonalId': null,
-    'telephone': null
-  };
-  return showDialog<String>(
-    context: context,
-    barrierDismissible:
-        false, // dialog is dismissible with a tap on the barrier
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Enter member Id'),
-        content: new Row(
-          children: <Widget>[
-            new Expanded(
-                child: new TextFormField(
-              autofocus: true,
-              decoration:
-                  new InputDecoration(labelText: 'member', hintText: '367'),
-              onChanged: (value) {
-                nodeId = value;
-              },
-            ))
-          ],
-        ),
-        actions: <Widget>[
-          FlatButton(
-            child: Text('Ok'),
-            onPressed: () {
-              Navigator.of(context).pop(nodeId);
-            },
+    if (snapshot.value != null) {
+      for (var t in types) {
+        items.add(DropdownMenuItem(
+          child: Text(
+            t.ticketType,
+            textDirection: TextDirection.rtl,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-        ],
-      );
-    },
-  );
+          value: valueConcat(t.ticketType, t.docBased),
+        ));
+      }
+    } else {
+      types = [];
+    }
+  }
+
+  //void _onData(Event event) {}
+
+  Future<String> _asyncInputDialog(BuildContext context) async {
+    return showDialog<String>(
+      context: context,
+      barrierDismissible:
+          false, // dialog is dismissible with a tap on the barrier
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+          elevation: 10,
+          title: Text(''),
+          content: Container(
+              height: 80,
+              child: Center(
+                child: SearchableDropdown(
+                  hint: Text('Text Here!'),
+                  icon: Icon(
+                    Icons.arrow_drop_down_circle,
+                    size: 32,
+                  ),
+                  iconEnabledColor: Colors.pink[900],
+                  iconDisabledColor: Colors.grey,
+                  items: items,
+                  value: selectedValue,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedValue = value;
+                      print('selectedValue:{$value}');
+                    });
+                  },
+                ),
+              )),
+          actions: <Widget>[
+            selectedValue == null
+                ? IconButton(
+                    icon: Icon(
+                      Icons.close,
+                      color: Colors.pink[900],
+                      size: 34,
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  )
+                : IconButton(
+                    icon: Icon(
+                      Icons.done,
+                      color: Colors.green,
+                      size: 34,
+                    ),
+                    onPressed: () {
+                      print(selectedValue);
+                      Navigator.of(context).pop();
+                      showDialog(
+                          context: context,
+                          builder: (_) => buildDetails(selectedValue));
+                    },
+                  )
+          ],
+        );
+      },
+    );
+  }
 }

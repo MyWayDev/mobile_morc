@@ -33,22 +33,6 @@ class _TrackOrder extends State<TrackOrder> {
     });
   }
 
-  /* void _wait(String docId, String distrId) 
-    Duration wait = Duration(milliseconds: 900);
-    Timer(wait, () async {
-      print('waiting....');
-    });
-    if (firstSorder.length > 0) {
-      if (_checkDupl(docId, distrId)) {
-        isLoading(false);
-      } else {
-        _wait(docId, distrId);
-      }
-    } else {
-      _wait(docId, distrId);
-    }
-  }*/
-
   void _deleteSo(String docId, String distrId, MainModel model) async {
     model.distrIdDel = distrId;
     model.docIdDel = docId;
@@ -100,9 +84,6 @@ class _TrackOrder extends State<TrackOrder> {
           }
         }
       }
-//firstInvoice.forEach((f)=>f.invoiceItems.forEach((f)=>print('${f.itemId}=>${f.price} * ${f.qty} = ${f.total}/${f.itemBp}==${f.totalBp}')));
-//firstInvoice.forEach((f)=>print({f.docId:f.invoiceItems.length}));
-//firstInvoice.forEach((f)=>print({f.docId:f.invocieTotal}));
     }
   }
 
@@ -268,7 +249,6 @@ class _TrackOrder extends State<TrackOrder> {
                 ),
                 onPressed: () async {
                   int wait = await getTimeDiff(model, index);
-
                   if (wait > 5) {
                     _deleteSoDialog(
                         firstSorder[index].soItems,
@@ -428,11 +408,11 @@ class _TrackOrder extends State<TrackOrder> {
                                   ),
                                 ],
                               ),
-                              Row(
+                              /* Row(
                                 mainAxisSize: MainAxisSize.max,
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: <Widget>[],
-                              ),
+                              ),*/
                               ExpansionTile(
                                   backgroundColor: Colors.pink[400],
                                   key: PageStorageKey<Sorder>(
@@ -446,11 +426,6 @@ class _TrackOrder extends State<TrackOrder> {
                                                   fontSize: 15,
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.yellow[100])),
-
-                                          /*Text(firstSorder[index].distrId,
-                                          style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.yellow[100]))*/
                                         ],
                                       ),
                                     ),

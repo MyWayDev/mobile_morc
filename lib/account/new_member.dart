@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:mor_release/models/area.dart';
+import 'package:mor_release/models/ticket.dart';
 import 'package:mor_release/models/user.dart';
 import 'package:mor_release/scoped/connected.dart';
 import 'package:mor_release/widgets/color_loader_2.dart';
@@ -13,6 +15,7 @@ import 'package:scoped_model/scoped_model.dart';
 import 'package:groovin_material_icons/groovin_material_icons.dart';
 
 import 'package:intl/intl.dart';
+import 'package:searchable_dropdown/searchable_dropdown.dart';
 
 class NewMemberPage extends StatefulWidget {
   final List<Area> areas;
@@ -26,6 +29,17 @@ class NewMemberPage extends StatefulWidget {
 @override
 class _NewMemberPage extends State<NewMemberPage> {
   DateTime selected;
+  FirebaseDatabase database = FirebaseDatabase.instance;
+  TextEditingController controller = new TextEditingController();
+
+  final GlobalKey<FormState> _newMemberFormKey = GlobalKey<FormState>();
+  List<DropdownMenuItem> items = [];
+  String selectedValue;
+
+  void initState() {
+    super.initState();
+    getAreas();
+  }
 
   _showDateTimePicker() async {
     selected = await showDatePicker(
@@ -39,14 +53,28 @@ class _NewMemberPage extends State<NewMemberPage> {
   }
 
   //final model = MainModel();
+  void getAreas() async {
+    DataSnapshot snapshot = await database
+        .reference()
+        .child('flamelink/environments/stage/content/areas/en-US/')
+        .once();
 
-  void initState() {
-    super.initState();
+    Map<dynamic, dynamic> _areas = snapshot.value;
+    List list = _areas.values.toList();
+    List<Area> fbAreas = list.map((f) => Area.json(f)).toList();
+
+    if (snapshot.value != null) {
+      for (var t in widget.areas) {
+        String sValue = "${t.areaId}" + " " + "${t.name}";
+        items.add(DropdownMenuItem(
+            child: Text(
+              sValue,
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            value: sValue));
+      }
+    }
   }
-
-  TextEditingController controller = new TextEditingController();
-
-  final GlobalKey<FormState> _newMemberFormKey = GlobalKey<FormState>();
 
   final NewMember _newMemberForm = NewMember(
     sponsorId: null,
@@ -76,7 +104,9 @@ class _NewMemberPage extends State<NewMemberPage> {
 
   void resetVeri() {
     controller.clear();
-    veri = false;
+    setState(() {
+      veri = false;
+    });
   }
 
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -121,14 +151,6 @@ class _NewMemberPage extends State<NewMemberPage> {
     return ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget child, MainModel model) {
       return Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-                Colors.black.withOpacity(0.2), BlendMode.dstATop),
-            image: AssetImage('assets/images/background.jpg'),
-          ),
-        ),
         child: Form(
           key: _newMemberFormKey,
           child: ListView(
@@ -278,7 +300,7 @@ class _NewMemberPage extends State<NewMemberPage> {
                                   ),
                                   TextFormField(
                                     decoration: InputDecoration(
-                                        labelText: 'ارقم الهاتف',
+                                        labelText: 'رقم الهاتف',
                                         filled: true,
                                         fillColor: Colors.transparent,
                                         contentPadding: EdgeInsets.all(8.0),
@@ -321,7 +343,24 @@ class _NewMemberPage extends State<NewMemberPage> {
                                       _newMemberForm.address = value;
                                     },
                                   ),
-                                  FormField<Area>(
+                                  SearchableDropdown(
+                                    hint: Text(''),
+                                    icon: Icon(
+                                      Icons.arrow_drop_down_circle,
+                                      size: 30,
+                                    ),
+                                    iconEnabledColor: Colors.pink[500],
+                                    iconDisabledColor: Colors.grey,
+                                    items: items,
+                                    value: selectedValue,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedValue = value;
+                                        print('selectedValue:{$value}');
+                                      });
+                                    },
+                                  ),
+                                  /*FormField<Area>(
                                     initialValue: _newMemberForm.areaId = null,
                                     onSaved: (val) =>
                                         _newMemberForm.areaId = val.areaId,
@@ -379,7 +418,7 @@ class _NewMemberPage extends State<NewMemberPage> {
                                         ),
                                       );
                                     },
-                                  ),
+                                  ),*/
                                 ],
                               ),
                             )
@@ -390,7 +429,7 @@ class _NewMemberPage extends State<NewMemberPage> {
               ),
               veri
                   ? Container(
-                      margin: const EdgeInsets.only(top: 20.0),
+                      margin: const EdgeInsets.only(top: 8.0),
                       padding: const EdgeInsets.only(left: 20.0, right: 20.0),
                       child: Row(
                         children: <Widget>[
@@ -398,56 +437,13 @@ class _NewMemberPage extends State<NewMemberPage> {
                             padding: EdgeInsets.only(right: 10.0),
                           ),
                           Expanded(
-                            child: FlatButton(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30.0)),
-                              splashColor: Theme.of(context).primaryColor,
-                              color: Colors.pink[900],
-                              child: Row(
-                                children: <Widget>[
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 20.0),
-                                    child: Text(
-                                      "",
-                                      style: TextStyle(
-                                          color: Theme.of(context).primaryColor,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Container(),
-                                  ),
-                                  Transform.translate(
-                                    offset: Offset(15.0, 0.0),
-                                    child: Container(
-                                      //   padding: const EdgeInsets.all(0.0),
-                                      child: FlatButton(
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(28.0)),
-                                        splashColor: Colors.white,
-                                        color: Colors.white,
-                                        child: Icon(
-                                          GroovinMaterialIcons
-                                              .account_multiple_check,
-                                          size: 25.0,
-                                          color: Theme.of(context).primaryColor,
-                                        ),
-                                        onPressed: () async {
-                                          validateAndSave(
-                                              model.userInfo.distrId);
-                                          String msg = await _saveNewMember(
-                                              model.userInfo.distrId);
-
-                                          _newMemberFormKey.currentState
-                                              .reset();
-                                          showReview(context, msg);
-                                          //   _regPressed();
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                            child: IconButton(
+                              icon: Center(
+                                child: Icon(
+                                  Icons.check_circle,
+                                  color: Colors.greenAccent[400],
+                                  size: 65,
+                                ),
                               ),
                               onPressed: () async {
                                 validateAndSave(model.userInfo.distrId);

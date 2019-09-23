@@ -1,18 +1,11 @@
-import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:groovin_material_icons/groovin_material_icons.dart';
 import 'package:mor_release/account/accout_tabs.dart';
 import 'package:mor_release/account/report.dart';
-import 'package:mor_release/pages/items/items.dart';
 import 'package:mor_release/pages/items/items.tabs.dart';
-import 'package:mor_release/pages/messages/contacts.dart';
 import 'package:mor_release/pages/messages/tickets.dart';
-import 'package:mor_release/pages/order/order.dart';
 import 'package:mor_release/scoped/connected.dart';
-import 'package:mor_release/track/track.tabs.dart';
 import 'package:scoped_model/scoped_model.dart';
-
-import 'models/ticket.dart';
 
 class BottomNav extends StatefulWidget {
   @override
@@ -85,7 +78,7 @@ class _BottomNav extends State<BottomNav> with SingleTickerProviderStateMixin {
               Tab(
                 // set icon to the tab
                 icon: Icon(
-                  Icons.format_list_numbered,
+                  Icons.home,
                   size: 32,
                   color: Colors.pink[700],
                 ),

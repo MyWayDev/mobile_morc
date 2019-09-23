@@ -68,7 +68,7 @@ class ItemsTabs extends StatelessWidget {
               tabs: <Widget>[
                 Tab(
                   icon: Icon(
-                    Icons.format_list_numbered,
+                    Icons.home,
                     size: 26.0,
                     color: Colors.grey[350],
                   ),

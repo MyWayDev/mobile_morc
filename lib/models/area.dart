@@ -9,7 +9,9 @@ class Area {
   Area.fromSnapshot(DataSnapshot snapshot)
       : areaId = snapshot.value['areaId'],
         name = snapshot.value['name'];
-
+  factory Area.json(Map<dynamic, dynamic> json) {
+    return Area(areaId: json['areaId'], name: json['name']);
+  }
   factory Area.fromJson(Map<String, dynamic> json) {
     return Area(areaId: json['AREA_ID'], name: json['ANAME']);
   }

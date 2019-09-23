@@ -91,3 +91,22 @@ class Notify {
     };
   }
 }
+
+class TicketType {
+  String typeId;
+  String ticketType;
+  bool docBased;
+
+  TicketType({this.typeId, this.ticketType, this.docBased});
+
+  factory TicketType.toJosn(Map<dynamic, dynamic> list) {
+    return TicketType(
+        ticketType: list['ticketType'],
+        typeId: list['typeId'],
+        docBased: list['docBased']);
+  }
+
+  TicketType.fromSnapshot(DataSnapshot snapshot)
+      : typeId = snapshot.value['typeId'],
+        ticketType = snapshot.value['ticketType'];
+}

@@ -777,7 +777,7 @@ class ImageDetails extends StatelessWidget {
       ),
       body: Center(
         child: Hero(
-            tag: image,
+            tag: "",
             child: PhotoView(
               imageProvider: NetworkImage(
                 image,

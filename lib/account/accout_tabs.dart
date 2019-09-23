@@ -10,24 +10,11 @@ class AccountTabs extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget child, MainModel model) {
-      model.userDetails();
+      // model.userDetails();
 
       return DefaultTabController(
         length: 2,
         child: Scaffold(
-          drawer: Drawer(
-              child: Column(children: <Widget>[
-            AppBar(
-              title: Text('Back'),
-            ),
-            ListTile(
-                leading: Icon(Icons.backspace),
-                title: Text('خروج'),
-                onTap: () {
-                  model.signOut();
-                  Navigator.pushReplacementNamed(context, '/');
-                }),
-          ])),
           appBar: AppBar(
             ///////////////////////Top Tabs Navigation Widget//////////////////////////////
             title: TabBar(
@@ -56,7 +43,7 @@ class AccountTabs extends StatelessWidget {
                     badgeTextColor: Colors.white, // default: Colors.white
                     //hideZeroCount: true, // default: true
                   ),
-                ),
+                ), //!
               ],
             ),
           ),

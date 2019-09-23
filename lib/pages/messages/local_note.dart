@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:mor_release/models/ticket.dart';
+import 'package:mor_release/pages/messages/chat.dart';
 
 import '../const.dart';
 
@@ -27,7 +29,6 @@ class _LocalNotificationState extends State<LocalNotification> {
   var subDel;
   var subSelect;
 
-  //get flutterLocalNotificationsPlugin => null;
   @override
   void initState() {
     super.initState();
@@ -61,8 +62,8 @@ class _LocalNotificationState extends State<LocalNotification> {
           Container(
               child: ListView.builder(
                   itemCount: filteredNotify.length,
-                  padding: EdgeInsets.only(top: 4),
-                  itemBuilder: (context, index) => Dismissible(
+                  itemBuilder: (context, index) {
+                    return Dismissible(
                         onDismissed: (DismissDirection direction) {
                           if (direction == DismissDirection.endToStart) {
                             _removeNote(filteredNotify[index].key);
@@ -73,8 +74,88 @@ class _LocalNotificationState extends State<LocalNotification> {
                           }
                         },
                         key: Key(filteredNotify[index].key),
-                        child: buildItem(context, filteredNotify[index]),
-                      ))),
+                        child: filteredNotify[index].image.isNotEmpty
+                            ? Card(
+                                color: !filteredNotify[index].seen
+                                    ? Colors.blue[50]
+                                    : Colors.blueGrey[50],
+                                child: ExpansionTile(
+                                  key: PageStorageKey<Notify>(
+                                      filteredNotify[index]),
+                                  title:
+                                      buildItem(context, filteredNotify[index]),
+                                  children: <Widget>[
+                                    filteredNotify[index].image != null ||
+                                            filteredNotify[index].image != ''
+                                        ? GestureDetector(
+                                            onTap: () {
+                                              Navigator.push(context,
+                                                  MaterialPageRoute(
+                                                      builder: (_) {
+                                                return ImageDetails(
+                                                  image: filteredNotify[index]
+                                                      .image,
+                                                );
+                                              }));
+                                            },
+                                            child: Container(
+                                              child: Material(
+                                                child: CachedNetworkImage(
+                                                  placeholder: (context, url) =>
+                                                      Container(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      valueColor:
+                                                          AlwaysStoppedAnimation<
+                                                                  Color>(
+                                                              themeColor),
+                                                    ),
+                                                    width: 200.0,
+                                                    height: 200.0,
+                                                    padding:
+                                                        EdgeInsets.all(70.0),
+                                                    decoration: BoxDecoration(
+                                                      color: greyColor2,
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                        Radius.circular(8.0),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  errorWidget:
+                                                      (context, url, error) =>
+                                                          Material(
+                                                    child: Image.asset(
+                                                      'assets/images/img_not_available.jpeg',
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                      Radius.circular(8.0),
+                                                    ),
+                                                    clipBehavior: Clip.hardEdge,
+                                                  ),
+                                                  imageUrl:
+                                                      filteredNotify[index]
+                                                          .image,
+                                                  fit: BoxFit.scaleDown,
+                                                ),
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(8.0)),
+                                                clipBehavior: Clip.hardEdge,
+                                              ),
+                                            ))
+                                        : Container(),
+                                  ],
+                                ))
+                            : Card(
+                                color: !filteredNotify[index].seen
+                                    ? Colors.blue[50]
+                                    : Colors.blueGrey[50],
+                                child:
+                                    buildItem(context, filteredNotify[index]),
+                              ));
+                  })),
           Positioned(
             child: isLoading
                 ? Container(
@@ -96,43 +177,53 @@ class _LocalNotificationState extends State<LocalNotification> {
   Widget buildItem(BuildContext context, Notify note) {
     return note.title != 'hide'
         ? Container(
-            child: FlatButton(
-              color: !note.seen ? Colors.blue[50] : Colors.blueGrey[50],
-              child: Row(
-                children: <Widget>[
-                  Flexible(
-                    child: Container(
-                      child: Column(
-                        children: <Widget>[
-                          Container(
-                            child: Text(
-                              note.title,
-                              textDirection: TextDirection.rtl,
-                              style: TextStyle(
-                                  color: Colors.pink[900],
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14),
+            color: !note.seen ? Colors.blue[50] : Colors.blueGrey[50],
+            child: Row(
+              children: <Widget>[
+                Flexible(
+                  child: Container(
+                    child: Column(
+                      children: <Widget>[
+                        Center(
+                            child: Column(
+                          children: <Widget>[
+                            Container(
+                              child: Text(
+                                note.title,
+                                style: TextStyle(
+                                    color: Colors.pink[900],
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14),
+                              ),
+                              alignment: Alignment.center,
+                              // margin:
+                              //   EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 5.0),
                             ),
-                            alignment: Alignment.center,
-                            margin: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 5.0),
-                          ),
-                          Text(
-                            note.body,
-                            textDirection: TextDirection.rtl,
-                          )
-                        ],
-                      ),
-                      margin: EdgeInsets.only(left: 10.0),
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 5),
+                            ),
+                            Text(
+                              note.body,
+                              textDirection: TextDirection.rtl,
+                              softWrap: true,
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.bold),
+                            )
+                          ],
+                        )),
+                      ],
                     ),
-                  )
-                ],
-              ),
-              onPressed: () {},
-              padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0)),
+                    //  margin: EdgeInsets.only(left: 10.0),
+                  ),
+                )
+              ],
             ),
-            margin: EdgeInsets.only(bottom: 10.0, left: 5.0, right: 5.0),
+            // onPressed: () {},
+            // padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+            // shape: RoundedRectangleBorder(
+            //  borderRadius: BorderRadius.circular(10.0)),
+
+            // margin: EdgeInsets.only(bottom: 10.0, left: 5.0, right: 5.0),
           )
         : Container();
   }

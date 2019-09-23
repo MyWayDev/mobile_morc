@@ -19,10 +19,7 @@ class NoteSub extends StatelessWidget {
                 style: Theme.of(context).textTheme.title,
               ),
               const SizedBox(height: 8),
-              Text(
-                payload,
-                style: Theme.of(context).textTheme.subtitle,
-              ),
+              Text(payload, style: Theme.of(context).textTheme.subtitle),
               const SizedBox(height: 8),
               RaisedButton(
                 child: Text('Back'),

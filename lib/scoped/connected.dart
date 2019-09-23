@@ -11,6 +11,7 @@ import 'package:mor_release/models/item.order.dart';
 import 'package:mor_release/models/lock.dart';
 import 'package:mor_release/models/sales.order.dart';
 import 'package:mor_release/models/ticket.dart';
+import 'package:mor_release/pages/messages/tickets.dart';
 import 'package:scoped_model/scoped_model.dart';
 import '../models/user.dart';
 import 'dart:convert';
@@ -115,23 +116,6 @@ class MainModel extends Model {
       }
     }
     return islimited;
-  }
-
-  Future<List<Ticket>> getTickets(int distrId) async {
-    List<Ticket> tickets;
-    DataSnapshot snapshot = await FirebaseDatabase.instance
-        .reference()
-        .child('flamelink/environments/production/content/support/en-US/')
-        .child('/')
-        .orderByChild('user')
-        .equalTo(distrId)
-        .once();
-    if (snapshot.value != null) {
-      Map<dynamic, dynamic> ticket = snapshot.value;
-      tickets = ticket.values.toList().map((f) => Ticket.fromJson(f)).toList();
-      tickets.forEach((t) => print('${t.id}${t.content}${t.items.length}'));
-    }
-    return tickets;
   }
 
   Future<List<User>> getContacts(String distrId) async {
