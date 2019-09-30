@@ -80,6 +80,7 @@ class _LocalNotificationState extends State<LocalNotification> {
                                     ? Colors.blue[50]
                                     : Colors.blueGrey[50],
                                 child: ExpansionTile(
+                                  backgroundColor: Colors.blue,
                                   key: PageStorageKey<Notify>(
                                       filteredNotify[index]),
                                   title:
@@ -207,7 +208,7 @@ class _LocalNotificationState extends State<LocalNotification> {
                               textDirection: TextDirection.rtl,
                               softWrap: true,
                               style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.bold),
+                                  fontSize: 13, fontWeight: FontWeight.bold),
                             )
                           ],
                         )),

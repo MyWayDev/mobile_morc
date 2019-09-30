@@ -1,5 +1,4 @@
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/material.dart';
 
 class Ticket {
   String key;
@@ -96,17 +95,48 @@ class TicketType {
   String typeId;
   String ticketType;
   bool docBased;
+  String docProblem;
 
-  TicketType({this.typeId, this.ticketType, this.docBased});
+  TicketType({this.typeId, this.ticketType, this.docBased, this.docProblem});
 
   factory TicketType.toJosn(Map<dynamic, dynamic> list) {
     return TicketType(
         ticketType: list['ticketType'],
         typeId: list['typeId'],
-        docBased: list['docBased']);
+        docBased: list['docBased'],
+        docProblem: list['docProblem']);
   }
 
   TicketType.fromSnapshot(DataSnapshot snapshot)
       : typeId = snapshot.value['typeId'],
         ticketType = snapshot.value['ticketType'];
+}
+
+class TicketDoc {
+  String docId;
+  String docDate;
+  String retrunDoc;
+  var totalVal;
+
+  TicketDoc({this.docId, this.docDate, this.retrunDoc, this.totalVal});
+
+  factory TicketDoc.toJson(Map<dynamic, dynamic> doc) {
+    return TicketDoc(
+        docId: doc['DOC_ID'],
+        docDate: doc['DOC_DATE'],
+        retrunDoc: doc['RETURNDOC'],
+        totalVal: doc['TOTAL_VAL']);
+  }
+}
+
+class TicketItem {
+  String itemId;
+  var qty;
+  int dmQty;
+
+  TicketItem({this.itemId, this.qty, this.dmQty = 1});
+
+  factory TicketItem.toJson(Map<dynamic, dynamic> item) {
+    return TicketItem(itemId: item['ITEM_ID'], qty: item['QTY']);
+  }
 }

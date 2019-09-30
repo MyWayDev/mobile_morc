@@ -1,15 +1,13 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:groovin_material_icons/groovin_material_icons.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:mor_release/models/ticket.dart';
-import 'package:mor_release/models/user.dart';
 import 'package:mor_release/pages/const.dart';
 import 'package:mor_release/pages/messages/chat.dart';
+import 'package:mor_release/pages/messages/forms/ticketDoc.dart';
+import 'package:mor_release/pages/messages/forms/ticketSelect.dart';
 import 'package:mor_release/scoped/connected.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:searchable_dropdown/searchable_dropdown.dart';
 
 class Tickets extends StatefulWidget {
   final int distrId;
@@ -21,6 +19,8 @@ class Tickets extends StatefulWidget {
 class _TicketsState extends State<Tickets> {
   List<Ticket> ticketsData = List();
   List<Ticket> filteredTickets = [];
+  List<TicketType> types = [];
+
   String path = "flamelink/environments/stage/content/support/en-US";
 
   FirebaseDatabase database = FirebaseDatabase.instance;
@@ -32,27 +32,16 @@ class _TicketsState extends State<Tickets> {
   var subDel;
   var subSelect;
   List<DropdownMenuItem> items = [];
+
   String selectedValue;
 
   TextEditingController controller = new TextEditingController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final Ticket _newTicketForm = Ticket(
-      id: null,
-      ticketId: null,
-      type: null,
-      user: null,
-      member: null,
-      open: null,
-      openDate: null,
-      closeDate: null,
-      docId: null,
-      content: null,
-      items: null);
 
   @override
   void initState() {
     super.initState();
     getTicketTypes();
+
     databaseReference = database.reference().child(path);
     widget.distrId != 1
         ? query = databaseReference
@@ -63,6 +52,10 @@ class _TicketsState extends State<Tickets> {
     subAdd = query.onChildAdded.listen(_onItemEntryAdded);
     subChanged = query.onChildChanged.listen(_onItemEntryChanged);
     subDel = query.onChildRemoved.listen(_onItemEntryDeleted);
+
+    /* WidgetsBinding.instance.addPostFrameCallback((_) {
+      _asyncInputDialog(context);
+    });*/
   }
 
   @override
@@ -74,6 +67,7 @@ class _TicketsState extends State<Tickets> {
     subSelect?.cancel();
   }
 
+/*
   Widget buildDetails(String tType) {
     return AlertDialog(
       actions: <Widget>[
@@ -89,7 +83,7 @@ class _TicketsState extends State<Tickets> {
         )
       ],
       content: Form(
-        key: _formKey,
+        // key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
@@ -145,7 +139,7 @@ class _TicketsState extends State<Tickets> {
         ),
       ),
     );
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -354,14 +348,14 @@ class _TicketsState extends State<Tickets> {
     });
   }
 
-  void getTicketTypes() async {
+  getTicketTypes() async {
     DataSnapshot snapshot = await database
         .reference()
         .child('flamelink/environments/stage/content/ticketType/en-US/')
         .once();
     Map<dynamic, dynamic> typeList = snapshot.value;
     List list = typeList.values.toList();
-    List<TicketType> types = list.map((f) => TicketType.toJosn(f)).toList();
+    types = list.map((f) => TicketType.toJosn(f)).toList();
     String valueConcat(String type, bool docBased) {
       var pValue = "${docBased.toString().substring(0, 1)}$type";
       print(pValue);
@@ -386,66 +380,12 @@ class _TicketsState extends State<Tickets> {
 
   //void _onData(Event event) {}
 
-  Future<String> _asyncInputDialog(BuildContext context) async {
+  _asyncInputDialog(BuildContext context) async {
     return showDialog<String>(
       context: context,
-      barrierDismissible:
-          false, // dialog is dismissible with a tap on the barrier
+      // dialog is dismissible with a tap on the barrier
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-          elevation: 10,
-          title: Text(''),
-          content: Container(
-              height: 80,
-              child: Center(
-                child: SearchableDropdown(
-                  hint: Text('Text Here!'),
-                  icon: Icon(
-                    Icons.arrow_drop_down_circle,
-                    size: 32,
-                  ),
-                  iconEnabledColor: Colors.pink[900],
-                  iconDisabledColor: Colors.grey,
-                  items: items,
-                  value: selectedValue,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedValue = value;
-                      print('selectedValue:{$value}');
-                    });
-                  },
-                ),
-              )),
-          actions: <Widget>[
-            selectedValue == null
-                ? IconButton(
-                    icon: Icon(
-                      Icons.close,
-                      color: Colors.pink[900],
-                      size: 34,
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  )
-                : IconButton(
-                    icon: Icon(
-                      Icons.done,
-                      color: Colors.green,
-                      size: 34,
-                    ),
-                    onPressed: () {
-                      print(selectedValue);
-                      Navigator.of(context).pop();
-                      showDialog(
-                          context: context,
-                          builder: (_) => buildDetails(selectedValue));
-                    },
-                  )
-          ],
-        );
+        return TicketSelect(types, widget.distrId.toString().padLeft(8, '0'));
       },
     );
   }
