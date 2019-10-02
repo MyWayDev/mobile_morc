@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:intl/intl.dart' as prefix0;
 import 'package:mor_release/models/ticket.dart';
 import 'package:mor_release/pages/const.dart';
 import 'package:mor_release/pages/messages/chat.dart';
@@ -34,7 +35,7 @@ class _TicketsState extends State<Tickets> {
   List<DropdownMenuItem> items = [];
 
   String selectedValue;
-
+  bool isSwitched = true;
   TextEditingController controller = new TextEditingController();
 
   @override
@@ -67,80 +68,6 @@ class _TicketsState extends State<Tickets> {
     subSelect?.cancel();
   }
 
-/*
-  Widget buildDetails(String tType) {
-    return AlertDialog(
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(
-            Icons.close,
-            color: Colors.pink[900],
-            size: 32,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        )
-      ],
-      content: Form(
-        // key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: TextFormField(
-                decoration: InputDecoration(
-                    labelText: tType,
-                    icon: Icon(
-                      Icons.view_list,
-                      color: Colors.pink[900],
-                    )),
-                enabled: false,
-                controller: controller,
-                onSaved: (String value) {
-                  _newTicketForm.type = tType;
-                },
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: TextFormField(
-                decoration: InputDecoration(
-                    labelText: 'docId',
-                    icon: Icon(
-                      GroovinMaterialIcons.file,
-                      color: Colors.pink[700],
-                    )),
-                enabled: false,
-                controller: controller,
-                onSaved: (String value) {
-                  _newTicketForm.type = value;
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: IconButton(
-                color: Colors.green,
-                icon: Icon(
-                  Icons.check_circle,
-                  color: Colors.green,
-                  size: 34,
-                ),
-                onPressed: () {
-                  if (_formKey.currentState.validate()) {
-                    _formKey.currentState.save();
-                  }
-                },
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }*/
-
   @override
   Widget build(BuildContext context) {
     filteredTickets = ticketsData.reversed
@@ -148,17 +75,20 @@ class _TicketsState extends State<Tickets> {
             o.open == true || closeDate(o.closeDate) == DateTime.now().month)
         .toList();
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _asyncInputDialog(context);
-        },
-        child: Icon(
-          Icons.add_comment,
-          size: 28,
-        ),
-        backgroundColor: Colors.pink[600],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      floatingActionButton: widget.distrId > 5
+          ? FloatingActionButton(
+              onPressed: () {
+                _asyncInputDialog(context);
+              },
+              child: Icon(
+                Icons.add_comment,
+                size: 28,
+              ),
+              backgroundColor: Colors.pink[600],
+            )
+          : null,
+      floatingActionButtonLocation:
+          widget.distrId > 5 ? FloatingActionButtonLocation.endDocked : null,
       body: Padding(
         padding: EdgeInsets.only(top: 30),
         child: Stack(
@@ -166,8 +96,35 @@ class _TicketsState extends State<Tickets> {
             Container(
                 child: ListView.builder(
               padding: EdgeInsets.all(5),
-              itemBuilder: (context, index) =>
-                  buildItem(context, filteredTickets[index]),
+              itemBuilder: (context, index) {
+                return Card(
+                    color: !filteredTickets[index].open
+                        ? Colors.greenAccent[100]
+                        : Colors.pink[100],
+                    child: ExpansionTile(
+                      leading: ConstrainedBox(
+                        constraints: BoxConstraints.tight(Size(40, 40)),
+                        child: Switch(
+                          value: filteredTickets[index].open,
+                          onChanged: (value) {
+                            setState(() {
+                              filteredTickets[index].open = value;
+                            });
+                          },
+                          activeTrackColor: Colors.lightGreenAccent,
+                          activeColor: Colors.green,
+                        ),
+                      ),
+                      backgroundColor: !filteredTickets[index].open
+                          ? Colors.greenAccent[100]
+                          : Colors.pink[100],
+                      key: PageStorageKey<Ticket>(filteredTickets[index]),
+                      title: buildItem(context, filteredTickets[index]),
+                      children: <Widget>[
+                        buildTicketInfo(context, filteredTickets[index]),
+                      ],
+                    ));
+              },
               itemCount: filteredTickets.length,
             )),
             Positioned(
@@ -190,7 +147,7 @@ class _TicketsState extends State<Tickets> {
 
   bool isLoading = false;
   Widget buildItem(BuildContext context, Ticket ticket) {
-    if (widget.distrId == 1) {
+    if (widget.distrId <= 5) {
       return Container(
         child: FlatButton(
           color: !ticket.open ? Colors.greenAccent[100] : Colors.pink[100],
@@ -221,25 +178,62 @@ class _TicketsState extends State<Tickets> {
               borderRadius: BorderRadius.all(Radius.circular(25.0)),
               clipBehavior: Clip.hardEdge,
             ),*/
+
               Flexible(
                 child: Container(
                   child: Column(
                     children: <Widget>[
-                      Container(
-                        child: Text(
-                          '${ticket.id}',
-                          style: TextStyle(
-                              color: Colors.pink[900],
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
+                      ListTile(
+                        leading: Column(
+                          children: <Widget>[
+                            Text(
+                              ticket.id.toString(),
+                              style: TextStyle(
+                                  color: Colors.pink[900],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14),
+                            ),
+                            Text(ticket.type),
+                          ],
                         ),
-                        alignment: Alignment.centerLeft,
-                        margin: EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 5.0),
+                        /*  title: ListTile(
+                          title: Container(
+                            child: Row(
+                              children: <Widget>[
+                                Icon(
+                                  Icons.vpn_key,
+                                  color: Colors.pink[900],
+                                  size: 18,
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(right: 5),
+                                ),
+                                Text(
+                                  int.parse(ticket.member).toString(),
+                                ),
+                              ],
+                            ),
+                          ),
+                          subtitle: Text(ticket.type),
+                        ),*/
+                        trailing: Column(
+                          children: <Widget>[
+                            Text(
+                              int.parse(ticket.member).toString(),
+                              style: TextStyle(
+                                  color: Colors.pink[900],
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            Text(prefix0.DateFormat("dd-MM-yyy")
+                                .format(DateTime.parse(ticket.openDate))),
+                            Text(prefix0.DateFormat("H:mm")
+                                .format(DateTime.parse(ticket.openDate))),
+                          ],
+                        ),
                       ),
-                      Text('${ticket.content}....${ticket.user.toString()}')
                     ],
                   ),
-                  margin: EdgeInsets.only(left: 20.0),
+                  // margin: EdgeInsets.only(left: 5.0),
                 ),
               )
             ],
@@ -279,13 +273,12 @@ class _TicketsState extends State<Tickets> {
                                 style: TextStyle(
                                     color: Colors.pink[900],
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 16),
+                                    fontSize: 14),
                               ),
                               alignment: Alignment.centerLeft,
                               margin: EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 5.0),
                             ),
-                            Text(
-                                '${ticket.content}....${ticket.user.toString()}')
+                            Text(ticket.content)
                           ],
                         ),
                         margin: EdgeInsets.only(left: 20.0),
@@ -388,5 +381,28 @@ class _TicketsState extends State<Tickets> {
         return TicketSelect(types, widget.distrId.toString().padLeft(8, '0'));
       },
     );
+  }
+
+  List<String> litems = ["1", "2", "Third", "4"];
+
+  Widget buildTicketInfo(BuildContext context, Ticket ticket) {
+    return ExpansionTile(
+        key: PageStorageKey<Ticket>(ticket),
+        backgroundColor:
+            !ticket.open ? Colors.greenAccent[100] : Colors.pink[100],
+        title: Column(
+          children: <Widget>[
+            Text(
+              ticket.docId,
+              style: TextStyle(
+                  color: Colors.pink[900], fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        children: ticket.items.map(_buildTicketItems).toList());
+  }
+
+  Widget _buildTicketItems(item) {
+    return Text(item['itemId']);
   }
 }

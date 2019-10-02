@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -25,10 +26,10 @@ class DocForm extends StatefulWidget {
 class _DocFormState extends State<DocForm> {
   bool isDocBased = false;
   bool isItemChips = false;
-  String docIdSelectedValue;
-  String docTypeSelectedValue;
+  bool isComment;
+  bool isValid = false;
   bool _isAsync = false;
-  static var tempVal = [];
+
   List<TicketDoc> docs = [];
   var items = [];
 
@@ -64,6 +65,7 @@ class _DocFormState extends State<DocForm> {
     }
     setState(() {
       isDocBased = widget.docBase;
+      isDocBased ? isComment = false : isComment = true;
       openItemChips(false);
     });
     super.initState();
@@ -91,9 +93,12 @@ class _DocFormState extends State<DocForm> {
                       ? FormBuilderCustomField(
                           attribute: "doc",
                           validators: [
-                            FormBuilderValidators.required(),
+                            FormBuilderValidators.required(errorText: ""),
                           ],
                           formField: FormField(
+                              onSaved: (value) {
+                                _newTicketData.docId = value;
+                              },
                               //initialValue: docs[0].docId,
                               // key: _formKey,
                               enabled: true,
@@ -122,7 +127,9 @@ class _DocFormState extends State<DocForm> {
                                               child: Center(
                                                 child: Text(
                                                   "${option.docId}" +
-                                                      " - " +
+                                                      "  ("
+                                                          '${option.docDate}' +
+                                                      ')  ' +
                                                       "${option.totalVal}" +
                                                       " " +
                                                       "Dh",
@@ -143,11 +150,22 @@ class _DocFormState extends State<DocForm> {
 
                                           openItemChips(false);
                                           isloading(true);
-                                          getDocItems(value).then((i) {
-                                            items = i;
-                                            isloading(false);
-                                            openItemChips(true);
-                                          });
+                                          widget.docProblem != 'l'
+                                              ? getDocItems(value).then((i) {
+                                                  items = i;
+                                                  isloading(false);
+                                                  openItemChips(true);
+                                                  setState(() {
+                                                    isValid = _formKey
+                                                        .currentState
+                                                        .validate();
+                                                  });
+                                                })
+                                              : isloading(false);
+                                          isComment = true;
+
+                                          print("doc is valued = $isValid");
+
                                           _newTicketData.docId = value;
                                           // print('docId selected Value:$value');
 
@@ -160,16 +178,30 @@ class _DocFormState extends State<DocForm> {
                               }),
                         )
                       : Container(),
-                  isItemChips
+                  isItemChips && widget.docProblem != 'l'
                       ? FormBuilderChipsInput(
                           decoration: InputDecoration(labelText: "الاصناف"),
                           attribute: 'chips',
                           // readonly: true,
+                          validators: [
+                            FormBuilderValidators.required(
+                                errorText: "required"),
+                            //)
+                            //FormBuilderValidators.max(150),
+                          ],
 
-                          //valueTransformer: (val) => val.length > 0 ? val[0] : null,
                           //initialValue: [],
                           maxChips: items.length,
-                          onChanged: _onChanged,
+
+                          onChanged: (value) {
+                            setState(() {
+                              isValid = _formKey.currentState.validate();
+                            });
+
+                            print("chips is valued = $isValid");
+
+                            _newTicketData.items = value;
+                          },
                           findSuggestions: (String query) {
                             if (query.length != 0) {
                               var lowercaseQuery = query.toLowerCase();
@@ -212,11 +244,6 @@ class _DocFormState extends State<DocForm> {
                                                 Container(
                                                   width: 210,
                                                   child: Row(
-                                                    verticalDirection:
-                                                        VerticalDirection.down,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
                                                     mainAxisAlignment:
                                                         MainAxisAlignment
                                                             .center,
@@ -224,19 +251,22 @@ class _DocFormState extends State<DocForm> {
                                                         MainAxisSize.min,
                                                     children: <Widget>[
                                                       profile.dmQty != 1
-                                                          ? IconButton(
-                                                              icon: Icon(
+                                                          ? GestureDetector(
+                                                              child: Icon(
                                                                 Icons.remove,
-                                                                size: 21,
+                                                                size: 28,
                                                                 color: Colors
                                                                     .red[900],
                                                               ),
-                                                              onPressed: () =>
-                                                                  setState(() =>
-                                                                      profile
-                                                                          .dmQty--),
+                                                              onTap: () => setState(
+                                                                  () => profile
+                                                                      .dmQty--),
                                                             )
-                                                          : Container(),
+                                                          : Icon(
+                                                              Icons.remove,
+                                                              color: Colors
+                                                                  .transparent,
+                                                            ),
                                                       InputChip(
                                                         key: ObjectKey(profile),
                                                         label: Text(
@@ -272,18 +302,21 @@ class _DocFormState extends State<DocForm> {
                                                       ),
                                                       profile.dmQty <
                                                               profile.qty
-                                                          ? IconButton(
-                                                              icon: Icon(
+                                                          ? GestureDetector(
+                                                              child: Icon(
                                                                 Icons.add,
-                                                                size: 21,
+                                                                size: 28,
                                                                 color: Colors
                                                                     .green,
                                                               ),
-                                                              onPressed: () =>
-                                                                  setState(() =>
-                                                                      profile
-                                                                          .dmQty++))
-                                                          : Container(),
+                                                              onTap: () => setState(
+                                                                  () => profile
+                                                                      .dmQty++))
+                                                          : Icon(
+                                                              Icons.add,
+                                                              color: Colors
+                                                                  .transparent,
+                                                            ),
                                                     ],
                                                   ),
                                                 )
@@ -295,21 +328,65 @@ class _DocFormState extends State<DocForm> {
                             );
                           },
                           suggestionBuilder: (context, state, profile) {
-                            return ListTile(
-                              key: ObjectKey(profile),
-                              /* leading: CircleAvatar(
+                            return SingleChildScrollView(
+                              child: ListTile(
+                                key: ObjectKey(profile),
+                                /* leading: CircleAvatar(
                           backgroundImage: NetworkImage(profile.ticketType),
                         ),*/
-                              title: Text(
-                                profile.itemId,
-                                style: TextStyle(
-                                    color: Colors.pink[900],
-                                    fontWeight: FontWeight.bold),
+                                title: Text(
+                                  profile.itemId,
+                                  style: TextStyle(
+                                      color: Colors.pink[900],
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                subtitle: Container(
+                                  child: Text(
+                                    "${profile.qty.toInt().toString()}" +
+                                        ' ' +
+                                        "الكميه",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15),
+                                  ),
+                                ),
+                                onTap: () => state.selectSuggestion(profile),
                               ),
-                              subtitle: Text(profile.qty.toInt().toString()),
-                              onTap: () => state.selectSuggestion(profile),
                             );
                           },
+                        )
+                      : Container(),
+                  isComment
+                      ? FormBuilderTextField(
+                          enableInteractiveSelection: true,
+                          expands: false,
+                          autocorrect: true,
+                          autovalidate: true,
+                          maxLengthEnforced: true,
+                          maxLines: 4,
+                          attribute: "comment",
+                          decoration: InputDecoration(
+                            labelText: "ملاحظات",
+                            /*border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red),
+                        ),*/
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              isValid = _formKey.currentState.validate();
+                            });
+                            print("comment is valued = $isValid");
+                            _newTicketData.content = value;
+                          },
+
+                          //  valueTransformer: (text) => num.tryParse(text),
+                          validators: [
+                            FormBuilderValidators.required(
+                                errorText: " required"),
+                            FormBuilderValidators.minLength(3, errorText: ""),
+                            FormBuilderValidators.maxLength(300,
+                                errorText: 'too much text'),
+                          ],
                         )
                       : Container(),
                 ],
@@ -330,17 +407,28 @@ class _DocFormState extends State<DocForm> {
                 // openItemChips(true);
               },
             ),
-            IconButton(
-              icon: Icon(
-                Icons.done,
-                color: Colors.green,
-                size: 32,
-              ),
-              onPressed: () async {
-                // print(selectedValue);
-                Navigator.of(context, rootNavigator: true).pop();
-              },
-            )
+            isValid
+                ? IconButton(
+                    icon: Icon(
+                      Icons.done,
+                      color: Colors.green,
+                      size: 32,
+                    ),
+                    onPressed: () async {
+                      if (_formKey.currentState.validate()) {
+                        addDefaultValues();
+                        _formKey.currentState.save();
+
+                        /*print("valid form = ${_newTicketData.openDate}}");
+                        _newTicketData.items.forEach((i) =>
+                            print('${i.qty} to => ${i.itemId}==${i.dmQty}'));*/
+                        ticketPushToFirebase(_newTicketData);
+                      }
+
+                      Navigator.of(context, rootNavigator: true).pop();
+                    },
+                  )
+                : Container()
           ],
         ),
       ),
@@ -410,6 +498,36 @@ class _DocFormState extends State<DocForm> {
     setState(() {
       isItemChips = o;
       print("isItemChips:$o");
+    });
+  }
+
+  void addDefaultValues() {
+    _newTicketData.type = widget.type;
+
+    _newTicketData.member = widget.distrId;
+  }
+
+  void ticketPushToFirebase(Ticket ticket) {
+    DatabaseReference ref = FirebaseDatabase.instance
+        .reference()
+        .child('flamelink/environments/stage/content/support/en-US');
+    var myRef = ref.child(DateTime.now().millisecondsSinceEpoch.toString());
+    myRef.set({
+      "open": false,
+      "closeDate": DateTime.now().toString(),
+      "content": _newTicketData.content,
+      "docId": _newTicketData.docId,
+      "id": int.parse(
+        myRef.key,
+      ),
+      "member": _newTicketData.member,
+      "openDate": DateTime.now().toString(),
+      "ticketId": myRef.key,
+      "type": _newTicketData.type,
+      "user": int.parse(_newTicketData.member).toString(),
+      "items": _newTicketData.items
+          .map((f) => {"itemId": f.itemId, "qty": f.dmQty.toString()})
+          .toList()
     });
   }
 }

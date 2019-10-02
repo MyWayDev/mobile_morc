@@ -22,7 +22,7 @@ class InvoiceItem {
     return InvoiceItem(
         docId: json['DOC_ID'],
         itemId: json['ITEM_ID'],
-        itemName: json['ITEM_NAME'],
+        itemName: json['ITEM_NAME'] ?? " ",
         total: json['NET_TOTAL'],
         itemBp: json['ITEM_BP'],
         totalBp: json['TOTAL_BP'],

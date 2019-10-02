@@ -26,6 +26,20 @@ class Ticket {
       this.docId,
       this.content,
       this.items});
+  toJson() {
+    return {
+      "closeDate": null,
+      "content": content,
+      "docId": docId,
+      "id": DateTime.now().millisecondsSinceEpoch.toString(),
+      "member": member,
+      "openDate": openDate,
+      "ticketId": DateTime.now().millisecondsSinceEpoch.toString(),
+      "type": type,
+      "user": user,
+      // "items": items
+    };
+  }
 
   Ticket.fromSnapshot(DataSnapshot snapshot)
       : key = snapshot.key,
