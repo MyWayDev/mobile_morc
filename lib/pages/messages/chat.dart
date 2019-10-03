@@ -17,12 +17,16 @@ class Chat extends StatelessWidget {
   final int peerId;
   final String peerAvatar;
   final int ticketId;
+  final String type;
+  final bool isOpen;
 
   Chat(
       {Key key,
       @required this.peerId,
       @required this.peerAvatar,
-      @required this.ticketId})
+      @required this.ticketId,
+      this.isOpen,
+      this.type})
       : super(key: key);
 
   @override
@@ -32,9 +36,8 @@ class Chat extends StatelessWidget {
       return Scaffold(
           appBar: AppBar(
             title: Text(
-              peerId.toString(),
-              style:
-                  TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
+              "${ticketId.toString()}  $type",
+              style: TextStyle(color: Colors.white),
             ),
             centerTitle: true,
           ),
@@ -43,6 +46,8 @@ class Chat extends StatelessWidget {
             peerId: peerId,
             peerAvatar: peerAvatar,
             ticketId: ticketId,
+            type: type,
+            isOpen: isOpen,
           ));
     });
   }
@@ -53,30 +58,43 @@ class ChatScreen extends StatefulWidget {
   final String peerAvatar;
   final String id;
   final int ticketId;
+  final String type;
+  final bool isOpen;
 
-  ChatScreen(
-      {Key key,
-      @required this.peerId,
-      @required this.peerAvatar,
-      @required this.id,
-      @required this.ticketId})
-      : super(key: key);
+  ChatScreen({
+    Key key,
+    @required this.peerId,
+    @required this.peerAvatar,
+    @required this.id,
+    @required this.ticketId,
+    @required this.type,
+    @required this.isOpen,
+  }) : super(key: key);
 
   @override
   State createState() => new ChatScreenState(
-      peerId: peerId, peerAvatar: peerAvatar, ticketId: ticketId);
+      peerId: peerId,
+      peerAvatar: peerAvatar,
+      ticketId: ticketId,
+      type: type,
+      isOpen: isOpen);
 }
 
 class ChatScreenState extends State<ChatScreen> {
+  bool isOpen;
+  String type;
+  int peerId;
+  String peerAvatar;
+  int ticketId;
+
   ChatScreenState(
       {Key key,
       @required this.peerId,
       @required this.peerAvatar,
-      @required this.ticketId});
+      @required this.ticketId,
+      @required this.type,
+      @required this.isOpen});
 
-  int peerId;
-  String peerAvatar;
-  int ticketId;
   var listMessage;
   String groupChatId;
   SharedPreferences prefs;
@@ -112,6 +130,9 @@ class ChatScreenState extends State<ChatScreen> {
   @override
   void dispose() {
     super.dispose();
+    _peerSeenUpdate(
+      database.reference().child("$path/${ticketId.toString()}/$groupChatId"),
+    );
     subAdd?.cancel();
   }
 
@@ -122,6 +143,14 @@ class ChatScreenState extends State<ChatScreen> {
         isShowSticker = false;
       });
     }
+  }
+
+  _peerSeenUpdate(DatabaseReference dbref) {
+    _msgList.length != 0
+        ? _msgList
+            .where((m) => m.idTo == widget.id)
+            .forEach((k) => dbref.child(k.key).update({"seen": true}))
+        : null;
   }
 
   readLocal(String distrId) {
@@ -135,7 +164,7 @@ class ChatScreenState extends State<ChatScreen> {
 
     databaseReference =
         database.reference().child("$path/${ticketId.toString()}/$groupChatId");
-
+    //
     subAdd = databaseReference.onChildAdded.listen(_onMessageEntryAdded);
     setState(() {});
   }
@@ -198,7 +227,8 @@ var documentReference = Firestore.instance
         'idTo': peerId.toString(),
         'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
         'content': content,
-        'type': type
+        'type': type,
+        'seen': false
       });
 
       listScrollController.animateTo(0.0,
@@ -479,7 +509,7 @@ var documentReference = Firestore.instance
               (isShowSticker ? buildSticker() : Container()),
 
               // Input content
-              buildInput(),
+              buildInput(isOpen),
             ],
           ),
 
@@ -625,26 +655,27 @@ var documentReference = Firestore.instance
     );
   }
 
-  Widget buildInput() {
-    return Container(
-      child: Row(
-        children: <Widget>[
-          // Button send image
-          Material(
-            child: new Container(
-              margin: new EdgeInsets.symmetric(horizontal: 1.0),
-              child: new IconButton(
-                icon: new Icon(
-                  Icons.image,
-                  size: 28,
+  Widget buildInput(bool isOpen) {
+    return isOpen
+        ? Container(
+            child: Row(
+              children: <Widget>[
+                // Button send image
+                Material(
+                  child: new Container(
+                    margin: new EdgeInsets.symmetric(horizontal: 1.0),
+                    child: new IconButton(
+                      icon: new Icon(
+                        Icons.image,
+                        size: 28,
+                      ),
+                      onPressed: getImage,
+                      color: Colors.pink[900],
+                    ),
+                  ),
+                  color: Colors.white,
                 ),
-                onPressed: getImage,
-                color: Colors.pink[900],
-              ),
-            ),
-            color: Colors.white,
-          ),
-          Material(
+                /*  Material(
             child: new Container(
               margin: new EdgeInsets.symmetric(horizontal: 1.0),
               child: new IconButton(
@@ -657,47 +688,49 @@ var documentReference = Firestore.instance
               ),
             ),
             color: Colors.white,
-          ),
+          ),*/
 
-          // Edit text
-          Flexible(
-            child: Container(
-              child: TextField(
-                style: TextStyle(color: Colors.black, fontSize: 16.0),
-                controller: textEditingController,
-                decoration: InputDecoration.collapsed(
-                  hintText: 'Type your message...',
-                  hintStyle: TextStyle(color: greyColor),
+                // Edit text
+                Flexible(
+                  child: Container(
+                    child: TextField(
+                      style: TextStyle(color: Colors.black, fontSize: 16.0),
+                      controller: textEditingController,
+                      decoration: InputDecoration.collapsed(
+                        hintText: 'Type your message...',
+                        hintStyle: TextStyle(color: greyColor),
+                      ),
+                      focusNode: focusNode,
+                    ),
+                  ),
                 ),
-                focusNode: focusNode,
-              ),
-            ),
-          ),
 
-          // Button send message
-          Material(
-            child: new Container(
-              margin: new EdgeInsets.symmetric(horizontal: 8.0),
-              child: new IconButton(
-                icon: new Icon(
-                  Icons.send,
-                  size: 28,
+                // Button send message
+                Material(
+                  child: new Container(
+                    margin: new EdgeInsets.symmetric(horizontal: 8.0),
+                    child: new IconButton(
+                      icon: new Icon(
+                        Icons.send,
+                        size: 28,
+                      ),
+                      onPressed: () =>
+                          onSendMessage(textEditingController.text, 0),
+                      color: Colors.pink[900],
+                    ),
+                  ),
+                  color: Colors.white,
                 ),
-                onPressed: () => onSendMessage(textEditingController.text, 0),
-                color: Colors.pink[900],
-              ),
+              ],
             ),
-            color: Colors.white,
-          ),
-        ],
-      ),
-      width: double.infinity,
-      height: 50.0,
-      decoration: new BoxDecoration(
-          border:
-              new Border(top: new BorderSide(color: greyColor2, width: 0.5)),
-          color: Colors.white),
-    );
+            width: double.infinity,
+            height: 50.0,
+            decoration: new BoxDecoration(
+                border: new Border(
+                    top: new BorderSide(color: greyColor2, width: 0.5)),
+                color: Colors.white),
+          )
+        : Container();
   }
 
   Widget buildListMessage() {
@@ -741,6 +774,7 @@ class Message {
   String idFrom;
   String idTo;
   String timeStamp;
+  bool seen;
   int type;
 
   Message({
@@ -749,6 +783,7 @@ class Message {
     this.idFrom,
     this.idTo,
     this.timeStamp,
+    this.seen,
     this.type,
   });
 
@@ -758,6 +793,7 @@ class Message {
         idFrom = snapshot.value['idFrom'],
         idTo = snapshot.value['idTo'],
         timeStamp = snapshot.value['timestamp'],
+        seen = snapshot.value['seen'],
         type = snapshot.value['type'];
 
   // Map<dynamic,dynamic> msgsSnapshot =  snapshot.value;

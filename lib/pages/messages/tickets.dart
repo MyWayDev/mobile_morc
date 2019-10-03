@@ -1,15 +1,11 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:groovin_material_icons/groovin_material_icons.dart';
 import 'package:intl/intl.dart' as prefix0;
 import 'package:mor_release/models/ticket.dart';
 import 'package:mor_release/pages/const.dart';
 import 'package:mor_release/pages/messages/chat.dart';
-import 'package:mor_release/pages/messages/forms/ticketDoc.dart';
 import 'package:mor_release/pages/messages/forms/ticketSelect.dart';
-import 'package:mor_release/scoped/connected.dart';
-import 'package:scoped_model/scoped_model.dart';
 
 class Tickets extends StatefulWidget {
   final int distrId;
@@ -208,8 +204,11 @@ class _TicketsState extends State<Tickets> {
   Widget buildItem(BuildContext context, Ticket ticket) {
     if (widget.distrId <= 5) {
       return Container(
-        child: FlatButton(
-          color: !ticket.open ? Colors.greenAccent[100] : Colors.pink[100],
+        child: RaisedButton(
+          shape: RoundedRectangleBorder(
+              borderRadius: new BorderRadius.circular(50.0)),
+          splashColor: Colors.yellowAccent,
+          color: !ticket.open ? Colors.green[50] : Colors.pink[50],
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -226,7 +225,7 @@ class _TicketsState extends State<Tickets> {
                               style: TextStyle(
                                   color: Colors.pink[900],
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 14),
+                                  fontSize: 13),
                             ),
                             Text(
                               ticket.type,
@@ -243,17 +242,17 @@ class _TicketsState extends State<Tickets> {
             ],
           ),
           onPressed: () {
-            ticket.open
-                ? Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Chat(
-                              peerId: int.parse(ticket.user),
-                              peerAvatar:
-                                  "https://firebasestorage.googleapis.com/v0/b/mobile-coco.appspot.com/o/flamelink%2Fmedia%2F1568595588253_account-img.png?alt=media&token=3d4fa5c4-5099-49ac-b621-96b5ea4cd5bd",
-                              ticketId: ticket.id,
-                            )))
-                : null;
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Chat(
+                          isOpen: ticket.open,
+                          type: ticket.type,
+                          peerId: int.parse(ticket.member),
+                          peerAvatar:
+                              "https://firebasestorage.googleapis.com/v0/b/mobile-coco.appspot.com/o/flamelink%2Fmedia%2F1568595588253_account-img.png?alt=media&token=3d4fa5c4-5099-49ac-b621-96b5ea4cd5bd",
+                          ticketId: ticket.id,
+                        )));
           },
           //padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
           //  shape:
@@ -264,9 +263,11 @@ class _TicketsState extends State<Tickets> {
     } else {
       return ticket.user == widget.distrId.toString()
           ? Container(
-              child: FlatButton(
-                color:
-                    !ticket.open ? Colors.greenAccent[100] : Colors.pink[100],
+              child: RaisedButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: new BorderRadius.circular(50.0)),
+                splashColor: Colors.yellowAccent,
+                color: !ticket.open ? Colors.green[50] : Colors.pink[50],
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
@@ -280,7 +281,7 @@ class _TicketsState extends State<Tickets> {
                                 style: TextStyle(
                                     color: Colors.pink[900],
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 14),
+                                    fontSize: 13),
                               ),
                               //   alignment: Alignment.centerLeft,
                               //   margin: EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 5.0),
@@ -294,17 +295,17 @@ class _TicketsState extends State<Tickets> {
                   ],
                 ),
                 onPressed: () {
-                  ticket.open
-                      ? Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Chat(
-                                    peerId: 1,
-                                    peerAvatar:
-                                        "https://firebasestorage.googleapis.com/v0/b/mobile-coco.appspot.com/o/flamelink%2Fmedia%2F1568468553357_myway.png?alt=media&token=bd51c423-9967-4075-bb8b-3f2fbee1e9dd",
-                                    ticketId: ticket.id,
-                                  )))
-                      : null;
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Chat(
+                                isOpen: ticket.open,
+                                type: ticket.type,
+                                peerId: 1,
+                                peerAvatar:
+                                    "https://firebasestorage.googleapis.com/v0/b/mobile-coco.appspot.com/o/flamelink%2Fmedia%2F1568468553357_myway.png?alt=media&token=bd51c423-9967-4075-bb8b-3f2fbee1e9dd",
+                                ticketId: ticket.id,
+                              )));
                 },
                 // padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
                 ////   borderRadius: BorderRadius.circular(10.0)),
