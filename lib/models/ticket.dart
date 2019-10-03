@@ -26,20 +26,6 @@ class Ticket {
       this.docId,
       this.content,
       this.items});
-  toJson() {
-    return {
-      "closeDate": null,
-      "content": content,
-      "docId": docId,
-      "id": DateTime.now().millisecondsSinceEpoch.toString(),
-      "member": member,
-      "openDate": openDate,
-      "ticketId": DateTime.now().millisecondsSinceEpoch.toString(),
-      "type": type,
-      "user": user,
-      // "items": items
-    };
-  }
 
   Ticket.fromSnapshot(DataSnapshot snapshot)
       : key = snapshot.key,
@@ -51,9 +37,9 @@ class Ticket {
         member = snapshot.value['member'],
         openDate = snapshot.value['openDate'],
         closeDate = snapshot.value['closeDate'],
-        docId = snapshot.value['docId'],
-        content = snapshot.value['content'],
-        items = snapshot.value['items'];
+        docId = snapshot.value['docId'] ?? "",
+        content = snapshot.value['content'] ?? "",
+        items = snapshot.value['items'] ?? [];
 
   factory Ticket.fromJson(Map<dynamic, dynamic> json) {
     return Ticket(
@@ -65,9 +51,9 @@ class Ticket {
       member: json['member'],
       openDate: json['openDate'],
       closeDate: json['closeDate'],
-      docId: json['docId'],
-      content: json['content'],
-      items: json['items'],
+      docId: json['docId'] ?? "",
+      content: json['content'] ?? "",
+      items: json['items'] ?? [],
     );
   }
 }

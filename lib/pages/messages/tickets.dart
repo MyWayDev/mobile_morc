@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:groovin_material_icons/groovin_material_icons.dart';
 import 'package:intl/intl.dart' as prefix0;
 import 'package:mor_release/models/ticket.dart';
 import 'package:mor_release/pages/const.dart';
@@ -98,32 +99,90 @@ class _TicketsState extends State<Tickets> {
               padding: EdgeInsets.all(5),
               itemBuilder: (context, index) {
                 return Card(
-                    color: !filteredTickets[index].open
-                        ? Colors.greenAccent[100]
-                        : Colors.pink[100],
-                    child: ExpansionTile(
-                      leading: ConstrainedBox(
-                        constraints: BoxConstraints.tight(Size(40, 40)),
-                        child: Switch(
-                          value: filteredTickets[index].open,
-                          onChanged: (value) {
-                            setState(() {
-                              filteredTickets[index].open = value;
-                            });
-                          },
-                          activeTrackColor: Colors.lightGreenAccent,
-                          activeColor: Colors.green,
-                        ),
-                      ),
-                      backgroundColor: !filteredTickets[index].open
-                          ? Colors.greenAccent[100]
-                          : Colors.pink[100],
-                      key: PageStorageKey<Ticket>(filteredTickets[index]),
-                      title: buildItem(context, filteredTickets[index]),
-                      children: <Widget>[
-                        buildTicketInfo(context, filteredTickets[index]),
-                      ],
-                    ));
+                  color: !filteredTickets[index].open
+                      ? Colors.greenAccent[100]
+                      : Colors.pink[100],
+                  child: Column(
+                    children: <Widget>[
+                      ListTile(
+                          leading: Icon(
+                            Icons.vpn_key,
+                            size: 21,
+                            color: Colors.pink[900],
+                          ),
+                          title: Text(
+                            filteredTickets[index].member,
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          subtitle: Row(
+                            children: <Widget>[
+                              Icon(
+                                Icons.access_time,
+                                size: 21,
+                                color: Colors.grey,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(right: 5),
+                              ),
+                              Text(
+                                prefix0.DateFormat("H:mm").format(
+                                    DateTime.parse(
+                                        filteredTickets[index].openDate)),
+                                style: TextStyle(fontSize: 13),
+                              )
+                            ],
+                          ),
+                          trailing: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Icon(
+                                Icons.calendar_today,
+                                size: 20,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(bottom: 6),
+                              ),
+                              Text(
+                                prefix0.DateFormat("dd-MM-yyy").format(
+                                    DateTime.parse(
+                                        filteredTickets[index].openDate)),
+                                style: TextStyle(fontSize: 13),
+                              ),
+                            ],
+                          )),
+                      ExpansionTile(
+                        leading: widget.distrId <= 5
+                            ? ConstrainedBox(
+                                constraints: BoxConstraints.tight(Size(45, 40)),
+                                child: Switch(
+                                  value: filteredTickets[index].open,
+                                  onChanged: (value) {
+                                    _closeTicket(
+                                        filteredTickets[index].key, value);
+                                    /* setState(() {
+                                  filteredTickets[index].open = value;
+                                });*/
+                                  },
+                                  activeTrackColor: Colors.white,
+                                  activeColor: Colors.pink[900],
+                                  inactiveThumbColor: Colors.grey,
+                                ),
+                              )
+                            : Icon(
+                                Icons.add_comment,
+                              ),
+                        backgroundColor: !filteredTickets[index].open
+                            ? Colors.greenAccent[100]
+                            : Colors.pink[100],
+                        key: PageStorageKey<Ticket>(filteredTickets[index]),
+                        title: buildItem(context, filteredTickets[index]),
+                        children: <Widget>[
+                          buildTicketInfo(context, filteredTickets[index]),
+                        ],
+                      )
+                    ],
+                  ),
+                );
               },
               itemCount: filteredTickets.length,
             )),
@@ -152,108 +211,55 @@ class _TicketsState extends State<Tickets> {
         child: FlatButton(
           color: !ticket.open ? Colors.greenAccent[100] : Colors.pink[100],
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              /* Material(
-              child: ticket. != null
-                  ? CachedNetworkImage(
-                      placeholder: (context, url) => Container(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 1.0,
-                          valueColor: AlwaysStoppedAnimation<Color>(themeColor),
-                        ),
-                        width: 50.0,
-                        height: 50.0,
-                        padding: EdgeInsets.all(15.0),
-                      ),
-                      imageUrl: ticket['Photo'],
-                      width: 50.0,
-                      height: 50.0,
-                      fit: BoxFit.cover,
-                    )
-                  : Icon(
-                      Icons.tag_faces,
-                      size: 50.0,
-                      color: greyColor,
-                    ),
-              borderRadius: BorderRadius.all(Radius.circular(25.0)),
-              clipBehavior: Clip.hardEdge,
-            ),*/
-
               Flexible(
                 child: Container(
                   child: Column(
                     children: <Widget>[
                       ListTile(
-                        leading: Column(
+                        title: Column(
                           children: <Widget>[
                             Text(
                               ticket.id.toString(),
+                              softWrap: true,
                               style: TextStyle(
                                   color: Colors.pink[900],
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14),
                             ),
-                            Text(ticket.type),
-                          ],
-                        ),
-                        /*  title: ListTile(
-                          title: Container(
-                            child: Row(
-                              children: <Widget>[
-                                Icon(
-                                  Icons.vpn_key,
-                                  color: Colors.pink[900],
-                                  size: 18,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(right: 5),
-                                ),
-                                Text(
-                                  int.parse(ticket.member).toString(),
-                                ),
-                              ],
-                            ),
-                          ),
-                          subtitle: Text(ticket.type),
-                        ),*/
-                        trailing: Column(
-                          children: <Widget>[
                             Text(
-                              int.parse(ticket.member).toString(),
-                              style: TextStyle(
-                                  color: Colors.pink[900],
-                                  fontWeight: FontWeight.bold),
+                              ticket.type,
+                              style: TextStyle(fontSize: 14),
                             ),
-                            Text(prefix0.DateFormat("dd-MM-yyy")
-                                .format(DateTime.parse(ticket.openDate))),
-                            Text(prefix0.DateFormat("H:mm")
-                                .format(DateTime.parse(ticket.openDate))),
                           ],
                         ),
                       ),
                     ],
                   ),
-                  // margin: EdgeInsets.only(left: 5.0),
+                  // margin: EdgeInsets.only(left: 18.0),
                 ),
               )
             ],
           ),
           onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => Chat(
-                          peerId: int.parse(ticket.user),
-                          peerAvatar:
-                              "https://firebasestorage.googleapis.com/v0/b/mobile-coco.appspot.com/o/flamelink%2Fmedia%2F1568595588253_account-img.png?alt=media&token=3d4fa5c4-5099-49ac-b621-96b5ea4cd5bd",
-                          ticketId: ticket.id,
-                        )));
+            ticket.open
+                ? Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Chat(
+                              peerId: int.parse(ticket.user),
+                              peerAvatar:
+                                  "https://firebasestorage.googleapis.com/v0/b/mobile-coco.appspot.com/o/flamelink%2Fmedia%2F1568595588253_account-img.png?alt=media&token=3d4fa5c4-5099-49ac-b621-96b5ea4cd5bd",
+                              ticketId: ticket.id,
+                            )))
+                : null;
           },
-          padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+          //padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
+          //  shape:
+          //    RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
         ),
-        margin: EdgeInsets.only(bottom: 5.0, left: 5.0, right: 5.0),
+        //   margin: EdgeInsets.only(bottom: 5.0, left: 5.0, right: 5.0),
       );
     } else {
       return ticket.user == widget.distrId.toString()
@@ -262,6 +268,7 @@ class _TicketsState extends State<Tickets> {
                 color:
                     !ticket.open ? Colors.greenAccent[100] : Colors.pink[100],
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Flexible(
                       child: Container(
@@ -275,33 +282,34 @@ class _TicketsState extends State<Tickets> {
                                     fontWeight: FontWeight.bold,
                                     fontSize: 14),
                               ),
-                              alignment: Alignment.centerLeft,
-                              margin: EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 5.0),
+                              //   alignment: Alignment.centerLeft,
+                              //   margin: EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 5.0),
                             ),
-                            Text(ticket.content)
+                            Text(ticket.type)
                           ],
                         ),
-                        margin: EdgeInsets.only(left: 20.0),
+                        //  margin: EdgeInsets.only(left: 15.0),
                       ),
                     )
                   ],
                 ),
                 onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => Chat(
-                                peerId: 1,
-                                peerAvatar:
-                                    "https://firebasestorage.googleapis.com/v0/b/mobile-coco.appspot.com/o/flamelink%2Fmedia%2F1568468553357_myway.png?alt=media&token=bd51c423-9967-4075-bb8b-3f2fbee1e9dd",
-                                ticketId: ticket.id,
-                              )));
+                  ticket.open
+                      ? Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Chat(
+                                    peerId: 1,
+                                    peerAvatar:
+                                        "https://firebasestorage.googleapis.com/v0/b/mobile-coco.appspot.com/o/flamelink%2Fmedia%2F1568468553357_myway.png?alt=media&token=bd51c423-9967-4075-bb8b-3f2fbee1e9dd",
+                                    ticketId: ticket.id,
+                                  )))
+                      : null;
                 },
-                padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0)),
+                // padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
+                ////   borderRadius: BorderRadius.circular(10.0)),
               ),
-              margin: EdgeInsets.only(bottom: 5.0, left: 5.0, right: 5.0),
+              //  margin: EdgeInsets.only(bottom: 5.0, left: 5.0, right: 5.0),
             )
           : Container();
     }
@@ -349,26 +357,6 @@ class _TicketsState extends State<Tickets> {
     Map<dynamic, dynamic> typeList = snapshot.value;
     List list = typeList.values.toList();
     types = list.map((f) => TicketType.toJosn(f)).toList();
-    String valueConcat(String type, bool docBased) {
-      var pValue = "${docBased.toString().substring(0, 1)}$type";
-      print(pValue);
-      return pValue;
-    }
-
-    if (snapshot.value != null) {
-      for (var t in types) {
-        items.add(DropdownMenuItem(
-          child: Text(
-            t.ticketType,
-            textDirection: TextDirection.rtl,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          value: valueConcat(t.ticketType, t.docBased),
-        ));
-      }
-    } else {
-      types = [];
-    }
   }
 
   //void _onData(Event event) {}
@@ -383,26 +371,70 @@ class _TicketsState extends State<Tickets> {
     );
   }
 
-  List<String> litems = ["1", "2", "Third", "4"];
-
   Widget buildTicketInfo(BuildContext context, Ticket ticket) {
     return ExpansionTile(
-        key: PageStorageKey<Ticket>(ticket),
-        backgroundColor:
-            !ticket.open ? Colors.greenAccent[100] : Colors.pink[100],
-        title: Column(
-          children: <Widget>[
-            Text(
-              ticket.docId,
-              style: TextStyle(
-                  color: Colors.pink[900], fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        children: ticket.items.map(_buildTicketItems).toList());
+      key: PageStorageKey<Ticket>(ticket),
+      backgroundColor:
+          !ticket.open ? Colors.greenAccent[100] : Colors.pink[100],
+      leading: Icon(GroovinMaterialIcons.file),
+      title: Column(
+        children: <Widget>[
+          Text(
+            ticket.docId ?? "",
+            style: TextStyle(color: Colors.pink[900], fontSize: 14),
+          ),
+          Text(
+            ticket.content,
+            textDirection: TextDirection.rtl,
+            softWrap: true,
+            style: TextStyle(fontSize: 14, wordSpacing: 0.1),
+          ),
+          ticket.items.length != 0
+              ? Divider(
+                  color: Colors.black,
+                )
+              : Container(),
+          ticket.items.length != 0
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(
+                      Icons.arrow_downward,
+                      size: 18,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(right: 5),
+                    ),
+                    Text(
+                      "قائمة الاصناف",
+                      style: TextStyle(fontSize: 13),
+                    )
+                  ],
+                )
+              : Container()
+        ],
+      ),
+      children: ticket.items.map(_buildTicketItems).toList(),
+    );
   }
 
   Widget _buildTicketItems(item) {
-    return Text(item['itemId']);
+    return ConstrainedBox(
+      constraints: BoxConstraints.tight(Size(115, 43)),
+      child: ListTile(
+        title: Text(
+          item['itemId'] ?? "",
+          style: TextStyle(fontSize: 13),
+        ),
+        trailing: Text(
+          item['qty'] ?? "",
+          style: TextStyle(fontSize: 13),
+        ),
+      ),
+    );
+  }
+
+  _closeTicket(String key, bool value) {
+    databaseReference.child(key).update({'open': value});
   }
 }
