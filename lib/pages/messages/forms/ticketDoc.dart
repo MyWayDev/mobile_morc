@@ -513,6 +513,7 @@ class _DocFormState extends State<DocForm> {
         .child('flamelink/environments/stage/content/support/en-US');
     var myRef = ref.child(DateTime.now().millisecondsSinceEpoch.toString());
     myRef.set({
+      "inUse": false,
       "open": true,
       "closeDate": DateTime.now().toString(),
       "content": _newTicketData.content,

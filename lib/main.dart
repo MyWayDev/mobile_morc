@@ -222,7 +222,8 @@ class _MyApp extends State<MyApp> {
         debugShowCheckedModeBanner: false,
         routes: {
           //  '/':home,
-          '/bottomnav': (BuildContext context) => BottomNav(),
+          // '/bottomnav': (BuildContext context) =>
+          //  BottomNav(model.userInfo.distrId),
           '/login': (BuildContext context) => LoginScreen(),
           '/registration': (BuildContext context) => RegistrationPage(),
           //'/welcome': (BuildContext context) => Welcome(),

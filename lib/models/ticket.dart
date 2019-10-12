@@ -7,11 +7,14 @@ class Ticket {
   String type;
   var user;
   bool open;
+  bool inUse;
   String member;
   String openDate;
   String closeDate;
   String docId;
   String content;
+  int fromClient;
+  int fromSupport;
   List items;
 
   Ticket(
@@ -20,11 +23,14 @@ class Ticket {
       this.type,
       this.user,
       this.open,
+      this.inUse,
       this.member,
       this.openDate,
       this.closeDate,
       this.docId,
       this.content,
+      this.fromClient,
+      this.fromSupport,
       this.items});
 
   Ticket.fromSnapshot(DataSnapshot snapshot)
@@ -34,6 +40,9 @@ class Ticket {
         type = snapshot.value['type'],
         user = snapshot.value['user'],
         open = snapshot.value['open'],
+        inUse = snapshot.value['inUse'] ?? false,
+        fromClient = snapshot.value['fromClient'] ?? 0,
+        fromSupport = snapshot.value['fromSupport'] ?? 0,
         member = snapshot.value['member'],
         openDate = snapshot.value['openDate'],
         closeDate = snapshot.value['closeDate'],
@@ -48,6 +57,9 @@ class Ticket {
       type: json['type'],
       user: json['user'],
       open: json['open'],
+      inUse: json['inUse'] ?? false,
+      fromClient: json['fromClient'] ?? 0,
+      fromSupport: json['fromSupport'] ?? 0,
       member: json['member'],
       openDate: json['openDate'],
       closeDate: json['closeDate'],

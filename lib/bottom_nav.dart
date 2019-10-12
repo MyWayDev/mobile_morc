@@ -1,13 +1,18 @@
+import 'package:badges/badges.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:groovin_material_icons/groovin_material_icons.dart';
 import 'package:mor_release/account/accout_tabs.dart';
 import 'package:mor_release/account/report.dart';
 import 'package:mor_release/pages/items/items.tabs.dart';
+import 'package:mor_release/pages/messages/chat.dart';
 import 'package:mor_release/pages/messages/tickets.dart';
 import 'package:mor_release/scoped/connected.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class BottomNav extends StatefulWidget {
+  final String user;
+  BottomNav(this.user);
   @override
   State<StatefulWidget> createState() {
     return _BottomNav();
@@ -18,10 +23,24 @@ class BottomNav extends StatefulWidget {
 class _BottomNav extends State<BottomNav> with SingleTickerProviderStateMixin {
   // Create a tab controller
   TabController tabController;
+  var subAdd;
+  var subChanged;
+  var subDel;
+  List<Msgs> _msgsList = List();
+  String path =
+      "flamelink/environments/stage/content/messages/en-US/msgsCount/";
+  FirebaseDatabase database = FirebaseDatabase.instance;
+  DatabaseReference databaseReference;
 
+  int _msgCount = 0;
   @override
   void initState() {
+    databaseReference = database.reference().child(path + '1-${widget.user}');
+    subAdd = databaseReference.onChildAdded.listen(_onMessageEntryAdded);
+    subChanged = databaseReference.onChildChanged.listen(_onItemEntryChanged);
     super.initState();
+
+//! add admin conditions here for 1 to 5 users..
 
     // Initialize the Tab Controller
     tabController = new TabController(length: 4, vsync: this);
@@ -92,12 +111,16 @@ class _BottomNav extends State<BottomNav> with SingleTickerProviderStateMixin {
                     size: 32, color: Colors.pink[700]),
               ),
               Tab(
+                  child: BadgeIconButton(
+                itemCount: _msgCount > 0 ? _msgCount : 0,
+                badgeColor: Colors.greenAccent[400],
+                badgeTextColor: Colors.white,
                 icon: Icon(
                   Icons.forum,
                   size: 32.0,
                   color: Colors.pink[700],
                 ),
-              ),
+              )),
               Tab(
                 icon: Icon(GroovinMaterialIcons.book_open,
                     size: 32, color: Colors.pink[700]),
@@ -110,4 +133,42 @@ class _BottomNav extends State<BottomNav> with SingleTickerProviderStateMixin {
       );
     });
   }
+
+  void _onMessageEntryAdded(Event event) {
+    _msgsList.add(Msgs.fromSnapshot(event.snapshot));
+
+    setState(() {});
+    _msgSnapshotCount();
+  }
+
+  void _onItemEntryChanged(Event event) {
+    var oldEntry = _msgsList.lastWhere((entry) {
+      return entry.key == event.snapshot.key;
+    });
+    setState(() {
+      _msgsList[_msgsList.indexOf(oldEntry)] =
+          Msgs.fromSnapshot(event.snapshot);
+      _msgSnapshotCount();
+    });
+  }
+
+  void _msgSnapshotCount() {
+    //msgsList.forEach((f) => f.fromSupport);
+    //  print('msgs listener on:$_msgCount');
+  }
+}
+
+class Msgs {
+  String key;
+  int fromClient;
+  int fromSupport;
+  Msgs({
+    this.key,
+    this.fromClient,
+    this.fromSupport,
+  });
+  Msgs.fromSnapshot(DataSnapshot snapshot)
+      : key = snapshot.key,
+        fromClient = snapshot.value['fromClient'],
+        fromSupport = snapshot.value['fromSupport'];
 }

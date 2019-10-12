@@ -11,6 +11,7 @@ import 'package:mor_release/models/item.order.dart';
 import 'package:mor_release/models/lock.dart';
 import 'package:mor_release/models/sales.order.dart';
 import 'package:mor_release/models/ticket.dart';
+import 'package:mor_release/pages/messages/chat.dart';
 import 'package:mor_release/pages/messages/tickets.dart';
 import 'package:scoped_model/scoped_model.dart';
 import '../models/user.dart';

@@ -19,6 +19,7 @@ class Chat extends StatelessWidget {
   final int ticketId;
   final String type;
   final bool isOpen;
+  final bool inUse;
 
   Chat(
       {Key key,
@@ -26,6 +27,7 @@ class Chat extends StatelessWidget {
       @required this.peerAvatar,
       @required this.ticketId,
       this.isOpen,
+      this.inUse = false,
       this.type})
       : super(key: key);
 
@@ -42,12 +44,14 @@ class Chat extends StatelessWidget {
             centerTitle: true,
           ),
           body: ChatScreen(
-            id: model.user.key,
+            id: int.parse(model.user.key) >= 5 ? model.user.key : '1',
             peerId: peerId,
+            supportId: model.user.key,
             peerAvatar: peerAvatar,
             ticketId: ticketId,
             type: type,
             isOpen: isOpen,
+            inUse: inUse,
           ));
     });
   }
@@ -55,11 +59,13 @@ class Chat extends StatelessWidget {
 
 class ChatScreen extends StatefulWidget {
   final int peerId;
+  final String supportId;
   final String peerAvatar;
   final String id;
   final int ticketId;
   final String type;
   final bool isOpen;
+  final bool inUse;
 
   ChatScreen({
     Key key,
@@ -69,6 +75,8 @@ class ChatScreen extends StatefulWidget {
     @required this.ticketId,
     @required this.type,
     @required this.isOpen,
+    @required this.supportId,
+    this.inUse = false,
   }) : super(key: key);
 
   @override
@@ -77,7 +85,8 @@ class ChatScreen extends StatefulWidget {
       peerAvatar: peerAvatar,
       ticketId: ticketId,
       type: type,
-      isOpen: isOpen);
+      isOpen: isOpen,
+      inUse: inUse);
 }
 
 class ChatScreenState extends State<ChatScreen> {
@@ -86,6 +95,7 @@ class ChatScreenState extends State<ChatScreen> {
   int peerId;
   String peerAvatar;
   int ticketId;
+  bool inUse;
 
   ChatScreenState(
       {Key key,
@@ -93,7 +103,8 @@ class ChatScreenState extends State<ChatScreen> {
       @required this.peerAvatar,
       @required this.ticketId,
       @required this.type,
-      @required this.isOpen});
+      @required this.isOpen,
+      this.inUse = false});
 
   var listMessage;
   String groupChatId;
@@ -108,15 +119,15 @@ class ChatScreenState extends State<ChatScreen> {
   List<Message> _msgList = List();
   FirebaseDatabase database = FirebaseDatabase.instance;
   DatabaseReference databaseReference;
-  var subAdd;
-  final TextEditingController textEditingController =
-      new TextEditingController();
-  final ScrollController listScrollController = new ScrollController();
-  final FocusNode focusNode = new FocusNode();
 
+  var subAdd;
+  var subChanged;
+  final TextEditingController textEditingController = TextEditingController();
+  final ScrollController listScrollController = ScrollController();
+  final FocusNode focusNode = FocusNode();
+  int msgCount;
   void initState() {
     super.initState();
-
     focusNode.addListener(onFocusChange);
 
     groupChatId = '';
@@ -124,16 +135,30 @@ class ChatScreenState extends State<ChatScreen> {
     isLoading = false;
     isShowSticker = false;
     imageUrl = '';
+
     readLocal(widget.id);
+
+    // updateSeenCount();
+  }
+
+  void updateInUse() {
+    DatabaseReference dbUpdateref = FirebaseDatabase.instance.reference();
+    dbUpdateref
+        .child("flamelink/environments/stage/content/support/en-US/")
+        .child(ticketId.toString())
+        .update({'inUse': false});
   }
 
   @override
   void dispose() {
-    super.dispose();
     _peerSeenUpdate(
-      database.reference().child("$path/${ticketId.toString()}/$groupChatId"),
+      database.reference().child("$path/$groupChatId/${widget.ticketId}"),
     );
+
+    updateInUse();
     subAdd?.cancel();
+    subChanged?.cancel();
+    super.dispose();
   }
 
   void onFocusChange() {
@@ -151,6 +176,7 @@ class ChatScreenState extends State<ChatScreen> {
             .where((m) => m.idTo == widget.id)
             .forEach((k) => dbref.child(k.key).update({"seen": true}))
         : null;
+    updateSeenCount();
   }
 
   readLocal(String distrId) {
@@ -163,9 +189,11 @@ class ChatScreenState extends State<ChatScreen> {
     }
 
     databaseReference =
-        database.reference().child("$path/${ticketId.toString()}/$groupChatId");
+        database.reference().child("$path/$groupChatId/$ticketId/");
     //
     subAdd = databaseReference.onChildAdded.listen(_onMessageEntryAdded);
+    subChanged =
+        databaseReference.onChildChanged.listen(_onMessageEntryChanged);
     setState(() {});
   }
 
@@ -212,30 +240,54 @@ class ChatScreenState extends State<ChatScreen> {
     if (content.trim() != '') {
       textEditingController.clear();
 
-/*
-var documentReference = Firestore.instance
-          .collection('messages')
-          .document(groupChatId)
-          .collection(groupChatId)
-          .document(DateTime.now().millisecondsSinceEpoch.toString());*/
-      FirebaseDatabase.instance
-          .reference()
-          .child(path +
-              '/${widget.ticketId}/$groupChatId/${DateTime.now().millisecondsSinceEpoch.toString()}')
-          .set({
+      DatabaseReference myRef = FirebaseDatabase.instance.reference().child(path +
+          '/$groupChatId/${widget.ticketId}/${DateTime.now().millisecondsSinceEpoch.toString()}');
+      myRef.set({
+        'idSupport': widget.supportId,
         'idFrom': widget.id,
         'idTo': peerId.toString(),
         'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
         'content': content,
         'type': type,
         'seen': false
-      });
+      }).then((f) => updateSeenCount());
 
       listScrollController.animateTo(0.0,
           duration: Duration(milliseconds: 300), curve: Curves.easeOut);
     } else {
       Fluttertoast.showToast(msg: 'Nothing to send');
     }
+  }
+
+  updateSeenCount() {
+    DatabaseReference sumRef = FirebaseDatabase.instance.reference().child(
+        'flamelink/environments/stage/content/support/en-US/${widget.ticketId}');
+    if (int.parse(widget.id) > 6) {
+      sumRef.update({
+        'fromClient': _nonseenToPeerMsgsCount(),
+        'fromSupport': 0,
+      });
+    } else {
+      sumRef.update({
+        'fromClient': 0,
+        'fromSupport': _nonseenToPeerMsgsCount(),
+      });
+    }
+  }
+
+  int _nonSeenToMeMsgsCount() {
+    int count = 0;
+    //count = _msgList.where((f) => !f.seen && f.idTo != widget.id).length;
+
+    print(count);
+    return count;
+  }
+
+  int _nonseenToPeerMsgsCount() {
+    int count = 0;
+    count = _msgList.where((f) => !f.seen && f.idFrom == widget.id).length;
+    print(count);
+    return count;
   }
 
   Widget buildItem(int index, Message msg) {
@@ -764,12 +816,25 @@ var documentReference = Firestore.instance
 
   void _onMessageEntryAdded(Event event) {
     _msgList.add(Message.fromSnapshot(event.snapshot));
+
     setState(() {});
+    // msgCount = _msgList.where((t) => !t.seen).length;
+  }
+
+  void _onMessageEntryChanged(Event event) {
+    var oldEntry = _msgList.lastWhere((entry) {
+      return entry.key == event.snapshot.key;
+    });
+    setState(() {
+      _msgList[_msgList.indexOf(oldEntry)] =
+          Message.fromSnapshot(event.snapshot);
+    });
   }
 }
 
 class Message {
   String key;
+
   String content;
   String idFrom;
   String idTo;
@@ -795,6 +860,15 @@ class Message {
         timeStamp = snapshot.value['timestamp'],
         seen = snapshot.value['seen'],
         type = snapshot.value['type'];
+
+  factory Message.fromList(Map<dynamic, dynamic> list) {
+    return Message(
+      content: list['content'],
+      seen: list['seen'],
+      idFrom: list['idFrom'],
+      idTo: list['idTo'],
+    );
+  }
 
   // Map<dynamic,dynamic> msgsSnapshot =  snapshot.value;
   // List msgs = msgsSnapshot.values.toList();
@@ -823,39 +897,3 @@ class ImageDetails extends StatelessWidget {
     );
   }
 }
-/*          StreamBuilder(
-              stream: FirebaseDatabase.instance
-                  .reference()
-                  .child(
-                      'flamelink/environments/production/content/messages/en-US/1')
-                  .onValue,
-//! firestore code
-              Firestore.instance
-                  .collection('messages')
-                  .document(groupChatId)
-                  .collection(groupChatId)
-                  .orderBy('timestamp', descending: true)
-                  .limit(20)
-                  .snapshots(),
-              builder: (BuildContext context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(
-                      child: CircularProgressIndicator(
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(themeColor)));
-                } else {
-                  listMessage = snapshot.data.snapshot;
-                  // var msg = snapshot.data.snapshot.value.toList().lenght;
-                  // print(msg);
-
-                  return ListView.builder(
-                    padding: EdgeInsets.all(10.0),
-                    itemBuilder: (context, index) =>
-                        buildItem(index, _msgList[index]),
-                    itemCount: _msgList.length,
-                    reverse: true,
-                    controller: listScrollController,
-                  );
-                }
-              },
-            ), */

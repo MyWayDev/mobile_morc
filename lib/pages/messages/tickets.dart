@@ -18,6 +18,7 @@ class _TicketsState extends State<Tickets> {
   List<Ticket> ticketsData = List();
   List<Ticket> filteredTickets = [];
   List<TicketType> types = [];
+  ChatScreen msgs;
 
   String path = "flamelink/environments/stage/content/support/en-US";
 
@@ -41,7 +42,7 @@ class _TicketsState extends State<Tickets> {
     getTicketTypes();
 
     databaseReference = database.reference().child(path);
-    widget.distrId != 1
+    widget.distrId >= 5
         ? query = databaseReference
             .child('/')
             .orderByChild('user')
@@ -71,6 +72,7 @@ class _TicketsState extends State<Tickets> {
         .where((o) =>
             o.open == true || closeDate(o.closeDate) == DateTime.now().month)
         .toList();
+
     return Scaffold(
       floatingActionButton: widget.distrId > 5
           ? FloatingActionButton(
@@ -87,7 +89,7 @@ class _TicketsState extends State<Tickets> {
       floatingActionButtonLocation:
           widget.distrId > 5 ? FloatingActionButtonLocation.endDocked : null,
       body: Padding(
-        padding: EdgeInsets.only(top: 30),
+        padding: EdgeInsets.only(top: 10),
         child: Stack(
           children: <Widget>[
             Container(
@@ -125,7 +127,7 @@ class _TicketsState extends State<Tickets> {
                                     DateTime.parse(
                                         filteredTickets[index].openDate)),
                                 style: TextStyle(fontSize: 13),
-                              )
+                              ),
                             ],
                           ),
                           trailing: Column(
@@ -160,7 +162,7 @@ class _TicketsState extends State<Tickets> {
                                 });*/
                                   },
                                   activeTrackColor: Colors.white,
-                                  activeColor: Colors.pink[900],
+                                  activeColor: Colors.pink[700],
                                   inactiveThumbColor: Colors.grey,
                                 ),
                               )
@@ -202,70 +204,86 @@ class _TicketsState extends State<Tickets> {
 
   bool isLoading = false;
   Widget buildItem(BuildContext context, Ticket ticket) {
-    if (widget.distrId <= 5) {
-      return Container(
-        child: RaisedButton(
-          shape: RoundedRectangleBorder(
-              borderRadius: new BorderRadius.circular(50.0)),
-          splashColor: Colors.yellowAccent,
-          color: !ticket.open ? Colors.green[50] : Colors.pink[50],
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Flexible(
-                child: Container(
-                  child: Column(
-                    children: <Widget>[
-                      ListTile(
-                        title: Column(
+    if (widget.distrId <= 6) {
+      return !ticket.inUse
+          ? Container(
+              child: RaisedButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: new BorderRadius.circular(12.0)),
+                splashColor: Colors.yellowAccent,
+                color: !ticket.open ? Colors.green[50] : Colors.pink[50],
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Flexible(
+                      child: Container(
+                        child: Column(
                           children: <Widget>[
-                            Text(
-                              ticket.id.toString(),
-                              softWrap: true,
-                              style: TextStyle(
-                                  color: Colors.pink[900],
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13),
-                            ),
-                            Text(
-                              ticket.type,
-                              style: TextStyle(fontSize: 14),
+                            ListTile(
+                              title: Column(
+                                children: <Widget>[
+                                  Text(
+                                    ticket.id.toString(),
+                                    softWrap: true,
+                                    style: TextStyle(
+                                        color: Colors.pink[900],
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13),
+                                  ),
+                                  Text(
+                                    ticket.type,
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  ticket.fromClient != 0
+                                      ? Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: <Widget>[
+                                            Text(ticket.fromClient.toString())
+                                          ],
+                                        )
+                                      : Container()
+                                ],
+                              ),
                             ),
                           ],
                         ),
+                        // margin: EdgeInsets.only(left: 18.0),
                       ),
-                    ],
-                  ),
-                  // margin: EdgeInsets.only(left: 18.0),
+                    )
+                  ],
                 ),
-              )
-            ],
-          ),
-          onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => Chat(
-                          isOpen: ticket.open,
-                          type: ticket.type,
-                          peerId: int.parse(ticket.member),
-                          peerAvatar:
-                              "https://firebasestorage.googleapis.com/v0/b/mobile-coco.appspot.com/o/flamelink%2Fmedia%2F1568595588253_account-img.png?alt=media&token=3d4fa5c4-5099-49ac-b621-96b5ea4cd5bd",
-                          ticketId: ticket.id,
-                        )));
-          },
-          //padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
-          //  shape:
-          //    RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-        ),
-        //   margin: EdgeInsets.only(bottom: 5.0, left: 5.0, right: 5.0),
-      );
+                onPressed: () {
+                  databaseReference
+                      .child(ticket.ticketId)
+                      .update({'inUse': true});
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Chat(
+                                inUse: true,
+                                isOpen: ticket.open,
+                                type: ticket.type,
+                                peerId: int.parse(ticket.member),
+                                peerAvatar:
+                                    "https://firebasestorage.googleapis.com/v0/b/mobile-coco.appspot.com/o/flamelink%2Fmedia%2F1568595588253_account-img.png?alt=media&token=3d4fa5c4-5099-49ac-b621-96b5ea4cd5bd",
+                                ticketId: ticket.id,
+                              )));
+                },
+                //padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
+                //  shape:
+                //    RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+              ),
+              //   margin: EdgeInsets.only(bottom: 5.0, left: 5.0, right: 5.0),
+            )
+          : Container(child: Center(child: MyBlinkingButton()));
     } else {
       return ticket.user == widget.distrId.toString()
           ? Container(
               child: RaisedButton(
+                padding: EdgeInsets.all(7),
                 shape: RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(50.0)),
+                    borderRadius: BorderRadius.circular(12.0)),
                 splashColor: Colors.yellowAccent,
                 color: !ticket.open ? Colors.green[50] : Colors.pink[50],
                 child: Row(
@@ -286,7 +304,42 @@ class _TicketsState extends State<Tickets> {
                               //   alignment: Alignment.centerLeft,
                               //   margin: EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 5.0),
                             ),
-                            Text(ticket.type)
+                            Text(ticket.type),
+                            ticket.fromSupport != 0
+                                ? Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: <Widget>[
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.pink[900],
+                                              blurRadius: 10.0,
+                                            ),
+                                          ],
+                                          borderRadius:
+                                              BorderRadius.circular(25.0),
+                                          border: Border.all(
+                                            width: 3.0,
+                                            color: Colors.deepPurple[300],
+                                          ),
+                                          color: Colors.deepPurple[300],
+                                          // shape: BoxShape.circle,
+                                        ),
+                                        child: Text(
+                                          ticket.fromSupport.toString(),
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      // Text(ticket.fromSupport.toString())
+                                    ],
+                                  )
+                                : Container()
                           ],
                         ),
                         //  margin: EdgeInsets.only(left: 15.0),
@@ -328,6 +381,7 @@ class _TicketsState extends State<Tickets> {
 
   void _onItemEntryAdded(Event event) {
     ticketsData.add(Ticket.fromSnapshot(event.snapshot));
+
     setState(() {});
   }
 
@@ -407,7 +461,7 @@ class _TicketsState extends State<Tickets> {
                       padding: EdgeInsets.only(right: 5),
                     ),
                     Text(
-                      "قائمة الاصناف",
+                      "قائمة الانف",
                       style: TextStyle(fontSize: 13),
                     )
                   ],
@@ -421,21 +475,68 @@ class _TicketsState extends State<Tickets> {
 
   Widget _buildTicketItems(item) {
     return ConstrainedBox(
-      constraints: BoxConstraints.tight(Size(115, 43)),
-      child: ListTile(
-        title: Text(
-          item['itemId'] ?? "",
-          style: TextStyle(fontSize: 13),
-        ),
-        trailing: Text(
-          item['qty'] ?? "",
-          style: TextStyle(fontSize: 13),
-        ),
-      ),
-    );
+        constraints: BoxConstraints.tight(Size(125, 48)),
+        child: ListTile(
+            title: Text(
+              item['itemId'] ?? "",
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+            ),
+            trailing: Container(
+              width: 28,
+              height: 18,
+              decoration: BoxDecoration(
+                color: Colors.pink[900],
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                item['qty'] ?? "",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            )));
   }
 
   _closeTicket(String key, bool value) {
     databaseReference.child(key).update({'open': value});
+  }
+}
+
+class MyBlinkingButton extends StatefulWidget {
+  @override
+  _MyBlinkingButtonState createState() => _MyBlinkingButtonState();
+}
+
+class _MyBlinkingButtonState extends State<MyBlinkingButton>
+    with SingleTickerProviderStateMixin {
+  AnimationController _animationController;
+
+  @override
+  void initState() {
+    _animationController =
+        new AnimationController(vsync: this, duration: Duration(seconds: 1));
+    _animationController.repeat();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _animationController,
+      child: Icon(
+        Icons.headset_mic,
+        size: 40,
+        color: Colors.pink[700],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 }

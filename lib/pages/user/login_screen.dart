@@ -312,10 +312,11 @@ class _LoginScreen extends State<LoginScreen> {
     isloading(true);
     if (await model.formEntry(validateFormEntry(),
         model.logIn(_userFormData['id'], _userFormData['password'], context))) {
+      print('userFormId:${_userFormData['id']}');
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => BottomNav(),
+          builder: (context) => BottomNav(_userFormData['id']),
         ),
       );
       print('isAllowedAccess:${model.access}');
