@@ -1,11 +1,7 @@
 import 'dart:async';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:mor_release/models/item.dart';
 import 'package:mor_release/models/item.order.dart';
-import 'package:mor_release/models/lock.dart';
-import 'package:mor_release/pages/user/lock_screen.dart';
 import 'package:mor_release/scoped/connected.dart';
 import 'package:mor_release/widgets/color_loader_2.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -27,8 +23,14 @@ class SaveDialog extends StatefulWidget {
 
 @override
 class _SaveDialog extends State<SaveDialog> {
+  @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   bool _pending = false;

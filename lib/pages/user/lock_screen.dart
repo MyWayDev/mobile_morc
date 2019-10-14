@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mor_release/models/lock.dart';
 import 'package:mor_release/scoped/connected.dart';
-import 'package:mor_release/widgets/login/login_screen_banner.dart';
 import 'package:scoped_model/scoped_model.dart';
 import '../../widgets/color_loader_2.dart';
 

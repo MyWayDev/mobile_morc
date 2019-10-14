@@ -6,7 +6,6 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:mor_release/models/ticket.dart';
 import 'package:http/http.dart' as http;
-import 'package:mor_release/pages/messages/forms/dmDialog.dart';
 import 'package:mor_release/scoped/connected.dart';
 import 'package:mor_release/widgets/color_loader_2.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -34,8 +33,7 @@ class _DocFormState extends State<DocForm> {
   var items = [];
 
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
-  final GlobalKey<FormFieldState> _specifyTextFieldKey =
-      GlobalKey<FormFieldState>();
+  // final GlobalKey<FormFieldState> _specifyTextFieldKey = GlobalKey<FormFieldState>();
 
   Ticket _newTicketData = Ticket(
       id: null,
@@ -437,10 +435,6 @@ class _DocFormState extends State<DocForm> {
       progressIndicator: ColorLoader2(),
     );
   }
-
-  ValueChanged _onChanged = (val) {
-    val.forEach((t) => print("${t.itemId} => ${t.dmQty}"));
-  };
 
   void isloading(bool i) {
     setState(() {

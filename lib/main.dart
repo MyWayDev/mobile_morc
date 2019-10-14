@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:mor_release/bottom_nav.dart';
 import 'package:mor_release/pages/items/items.dart';
 import 'package:mor_release/pages/items/items.tabs.dart';
 import 'package:mor_release/models/ticket.dart';
@@ -112,6 +111,11 @@ class _MyApp extends State<MyApp> {
       print('IOS Setting Registed');
     });
     // firebaseMessaging.getToken().then((token) {});
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   void initTokenListen() {

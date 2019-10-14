@@ -1,4 +1,4 @@
-import 'package:firebase_database/firebase_database.dart';
+/*import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:mor_release/models/ticket.dart';
@@ -91,4 +91,4 @@ class FcmModel extends Model {
     String fcmToken = await _fcm.getToken();
     print("TokePrint:$fcmToken");
   }
-}
+}*/

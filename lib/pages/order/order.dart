@@ -1,13 +1,6 @@
-import 'dart:async';
-
 import 'package:badges/badges.dart';
-
 import 'package:flutter/material.dart';
-import 'package:mor_release/models/item.dart';
-import 'package:mor_release/models/item.order.dart';
-import 'package:mor_release/pages/items/items.dart';
 import 'package:mor_release/scoped/connected.dart';
-import 'package:mor_release/widgets/login/login_screen_banner.dart';
 import 'package:mor_release/widgets/stock_dialog.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -20,6 +13,16 @@ class OrderPage extends StatefulWidget {
 
 @override
 class _OrderPage extends State<OrderPage> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<MainModel>(

@@ -275,14 +275,6 @@ class ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  int _nonSeenToMeMsgsCount() {
-    int count = 0;
-    //count = _msgList.where((f) => !f.seen && f.idTo != widget.id).length;
-
-    print(count);
-    return count;
-  }
-
   int _nonseenToPeerMsgsCount() {
     int count = 0;
     count = _msgList.where((f) => !f.seen && f.idFrom == widget.id).length;
@@ -786,7 +778,6 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
   Widget buildListMessage() {
-    //TODO: USE ONE LIST IF U CAN;
     listMessage = _msgList;
 
     return Flexible(

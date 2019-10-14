@@ -1,10 +1,8 @@
-import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:mor_release/models/item.dart';
 import 'package:mor_release/pages/items/itemDetails/footer.dart';
 import 'package:mor_release/pages/items/itemDetails/gredients.dart';
 import 'package:mor_release/scoped/connected.dart';
-import 'package:mor_release/widgets/stock_dialog.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'header.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -113,19 +111,22 @@ class Details extends StatefulWidget {
 
   Details(this.item, this.recoImage);
 
-  List<String> _imgs(List<Item> items) {
-    List<String> imgList = List();
-    items.forEach((i) => imgList.add(i.imageUrl));
-
-    return imgList;
-  }
-
   @override
   _DetailsState createState() => _DetailsState();
 }
 
 class _DetailsState extends State<Details> with TickerProviderStateMixin {
-  int _current = 0;
+  int current = 0;
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<MainModel>(
@@ -152,7 +153,7 @@ class _DetailsState extends State<Details> with TickerProviderStateMixin {
                     aspectRatio: 3.9,
                     onPageChanged: (index) {
                       setState(() {
-                        _current = index;
+                        current = index;
                       });
                     },
                   ),

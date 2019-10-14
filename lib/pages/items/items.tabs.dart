@@ -163,7 +163,7 @@ class ItemsTabs extends StatelessWidget {
         ),
       )*/
 
-  Widget _currentUser(BuildContext context, MainModel model) {
+  /* Widget _currentUser(BuildContext context, MainModel model) {
     return new FutureBuilder(
       future: model.loggedUser(),
       builder: (context, AsyncSnapshot<String> snapshot) {
@@ -173,7 +173,7 @@ class ItemsTabs extends StatelessWidget {
           return Text('*');
       },
     );
-  }
+  }*/
 }
 
 enum db { production, stage }

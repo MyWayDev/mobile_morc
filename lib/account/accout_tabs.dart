@@ -1,4 +1,4 @@
-import 'package:badges/badges.dart';
+/*import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:mor_release/account/new_member.dart';
 import 'package:mor_release/scoped/connected.dart';
@@ -50,13 +50,18 @@ class AccountTabs extends StatelessWidget {
           ////v////////////////////Bottom Tabs Navigation widget/////////////////////////
           body: TabBarView(
             children: <Widget>[
-              NewMemberPage(model.areas),
+              // NewMemberPage(model.areas),
               Container(), // SwitchPage(ItemsPage()),
               //OrderPage(), //SwitchPage(OrderPage()),
               //ProductList(),
             ],
           ),
-          /* bottomNavigationBar: BottomNavigationBar(
+        ),
+      );
+    });
+  }
+}*/
+/* bottomNavigationBar: BottomNavigationBar(
             currentIndex: 0,
             items: [
               BottomNavigationBarItem(
@@ -68,10 +73,6 @@ class AccountTabs extends StatelessWidget {
                   icon: Icon(Icons.person), title: Text('Profile'))
             ],
           ),*/
-        ),
-      );
-    });
-  }
 /*new BottomNavigationBarItem(
         title: new Text('Home'),
         icon: new Stack(
@@ -86,5 +87,3 @@ class AccountTabs extends StatelessWidget {
           ]
         ),
       )*/
-
-}

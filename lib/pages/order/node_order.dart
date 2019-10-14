@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:modal_progress_hud/modal_progress_hud.dart';
+
 import 'package:mor_release/models/courier.dart';
 import 'package:mor_release/models/user.dart';
-import 'package:mor_release/pages/gift/gift_list.dart';
-import 'package:mor_release/pages/order/end_order.dart';
-import 'package:mor_release/pages/order/member_order.dart';
+
 import 'package:mor_release/pages/order/widgets/order_courier.dart';
 import 'package:mor_release/scoped/connected.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -18,6 +16,16 @@ class NodeOrder extends StatefulWidget {
 
 @override
 class _NodeOrder extends State<NodeOrder> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   final GlobalKey<FormState> _orderFormKey = GlobalKey<FormState>();
 
   final Map<String, dynamic> _orderFormData = {
@@ -29,7 +37,7 @@ class _NodeOrder extends State<NodeOrder> {
     bool o;
     shipment.length > 0 ? o = false : o = true;
     setState(() {
-      _loading = o;
+      loading = o;
     });
   }
 
@@ -41,7 +49,7 @@ class _NodeOrder extends State<NodeOrder> {
     });
   }
 
-  bool _loading = false;
+  bool loading = false;
 
   bool veri = false;
   //int _courier;

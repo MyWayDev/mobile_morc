@@ -1,38 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:scoped_model/scoped_model.dart';
 import '../../models/item.dart';
-import 'package:mor_release/scoped/connected.dart';
 
 class ItemDetails extends StatelessWidget {
   final Item item;
 
   ItemDetails(this.item);
-
-  _showWarningDialog(BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Are you sure?'),
-            content: Text('This action cannot be undone...'),
-            actions: <Widget>[
-              FlatButton(
-                child: Text('Discard'),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              FlatButton(
-                child: Text('Continue'),
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.pop(context, true);
-                },
-              )
-            ],
-          );
-        });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,14 +26,6 @@ class ItemDetails extends StatelessWidget {
                     ),
                 Container(
                     padding: EdgeInsets.all(10.0), child: Text(item.name)),
-
-                ///here price tag
-                /* Container(
-                    padding: EdgeInsets.all(10.0),
-                    child: RaisedButton(
-                      child: Text('Delete'),
-                      onPressed: () => _showWarningDialog(context),
-                    ))*/
                 Container(
                   child: Center(
                     child: SingleChildScrollView(

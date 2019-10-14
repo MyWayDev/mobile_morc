@@ -2,10 +2,10 @@ import 'package:badges/badges.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:groovin_material_icons/groovin_material_icons.dart';
-import 'package:mor_release/account/accout_tabs.dart';
+import 'package:mor_release/account/new_member.dart';
 import 'package:mor_release/account/report.dart';
+import 'package:mor_release/models/ticket.dart';
 import 'package:mor_release/pages/items/items.tabs.dart';
-import 'package:mor_release/pages/messages/chat.dart';
 import 'package:mor_release/pages/messages/tickets.dart';
 import 'package:mor_release/scoped/connected.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -23,21 +23,28 @@ class BottomNav extends StatefulWidget {
 class _BottomNav extends State<BottomNav> with SingleTickerProviderStateMixin {
   // Create a tab controller
   TabController tabController;
+  Query query;
   var subAdd;
   var subChanged;
   var subDel;
-  List<Msgs> _msgsList = List();
-  String path =
-      "flamelink/environments/stage/content/messages/en-US/msgsCount/";
+  List<Ticket> _msgsList = List();
+  String path = "flamelink/environments/stage/content/support/en-US/";
   FirebaseDatabase database = FirebaseDatabase.instance;
   DatabaseReference databaseReference;
 
   int _msgCount = 0;
   @override
   void initState() {
-    databaseReference = database.reference().child(path + '1-${widget.user}');
-    subAdd = databaseReference.onChildAdded.listen(_onMessageEntryAdded);
-    subChanged = databaseReference.onChildChanged.listen(_onItemEntryChanged);
+    databaseReference = database.reference().child(path);
+    int.parse(widget.user) >= 6
+        ? query = databaseReference
+            .child('/')
+            .orderByChild('user')
+            .equalTo(widget.user.toString())
+        : query = databaseReference.child("/");
+
+    subAdd = query.onChildAdded.listen(_onMessageEntryAdded);
+    subChanged = query.onChildChanged.listen(_onItemEntryChanged);
     super.initState();
 
 //! add admin conditions here for 1 to 5 users..
@@ -49,6 +56,9 @@ class _BottomNav extends State<BottomNav> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     // Dispose of the Tab Controller
+    subAdd?.cancel();
+    subChanged?.cancel();
+    subDel?.cancel();
     tabController.dispose();
     super.dispose();
   }
@@ -72,7 +82,7 @@ class _BottomNav extends State<BottomNav> with SingleTickerProviderStateMixin {
           // Add tabs as widgets
           children: <Widget>[
             ItemsTabs(),
-            AccountTabs(),
+            NewMemberPage(), // AccountTabs(),
             Tickets(
               distrId: int.parse(model.user.key),
             ),
@@ -113,7 +123,7 @@ class _BottomNav extends State<BottomNav> with SingleTickerProviderStateMixin {
               Tab(
                   child: BadgeIconButton(
                 itemCount: _msgCount > 0 ? _msgCount : 0,
-                badgeColor: Colors.greenAccent[400],
+                badgeColor: Colors.deepPurple[300],
                 badgeTextColor: Colors.white,
                 icon: Icon(
                   Icons.forum,
@@ -135,10 +145,10 @@ class _BottomNav extends State<BottomNav> with SingleTickerProviderStateMixin {
   }
 
   void _onMessageEntryAdded(Event event) {
-    _msgsList.add(Msgs.fromSnapshot(event.snapshot));
+    _msgsList.add(Ticket.fromSnapshot(event.snapshot));
 
     setState(() {});
-    _msgSnapshotCount();
+    _msgSnapshotCount(widget.user);
   }
 
   void _onItemEntryChanged(Event event) {
@@ -147,28 +157,19 @@ class _BottomNav extends State<BottomNav> with SingleTickerProviderStateMixin {
     });
     setState(() {
       _msgsList[_msgsList.indexOf(oldEntry)] =
-          Msgs.fromSnapshot(event.snapshot);
-      _msgSnapshotCount();
+          Ticket.fromSnapshot(event.snapshot);
+      _msgSnapshotCount(widget.user);
     });
   }
 
-  void _msgSnapshotCount() {
-    //msgsList.forEach((f) => f.fromSupport);
-    //  print('msgs listener on:$_msgCount');
+  void _msgSnapshotCount(String user) {
+    _msgCount = 0;
+    if (int.parse(user) > 6) {
+      _msgsList.forEach((f) => _msgCount += f.fromSupport);
+      print('msgs listener on:$_msgCount');
+    } else {
+      _msgsList.forEach((f) => _msgCount += f.fromClient);
+      print('msgs listener on:$_msgCount');
+    }
   }
-}
-
-class Msgs {
-  String key;
-  int fromClient;
-  int fromSupport;
-  Msgs({
-    this.key,
-    this.fromClient,
-    this.fromSupport,
-  });
-  Msgs.fromSnapshot(DataSnapshot snapshot)
-      : key = snapshot.key,
-        fromClient = snapshot.value['fromClient'],
-        fromSupport = snapshot.value['fromSupport'];
 }

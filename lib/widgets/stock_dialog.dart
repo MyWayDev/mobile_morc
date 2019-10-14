@@ -1,14 +1,10 @@
 import 'dart:async';
 import 'package:badges/badges.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:mor_release/models/item.dart';
-import 'package:mor_release/models/lock.dart';
 import 'package:mor_release/pages/items/itemDetails/details.dart';
-import 'package:mor_release/pages/user/lock_screen.dart';
 import 'package:mor_release/scoped/connected.dart';
-import 'package:mor_release/widgets/color_loader_2.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class StockDialog extends StatefulWidget {
@@ -25,8 +21,14 @@ class StockDialog extends StatefulWidget {
 
 @override
 class _StockDialog extends State<StockDialog> {
+  @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   void isLoading(bool o) {

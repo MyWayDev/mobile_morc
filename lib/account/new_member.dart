@@ -7,7 +7,6 @@ import 'package:http/http.dart';
 
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:mor_release/models/area.dart';
-import 'package:mor_release/models/ticket.dart';
 import 'package:mor_release/models/user.dart';
 import 'package:mor_release/scoped/connected.dart';
 import 'package:mor_release/widgets/color_loader_2.dart';
@@ -18,8 +17,8 @@ import 'package:intl/intl.dart';
 import 'package:searchable_dropdown/searchable_dropdown.dart';
 
 class NewMemberPage extends StatefulWidget {
-  final List<Area> areas;
-  NewMemberPage(this.areas);
+  //final List<Area> areas;
+  // NewMemberPage(this.areas);
   State<StatefulWidget> createState() {
     return _NewMemberPage();
   }
@@ -29,42 +28,48 @@ class NewMemberPage extends StatefulWidget {
 @override
 class _NewMemberPage extends State<NewMemberPage> {
   DateTime selected;
+  String path = 'flamelink/environments/stage/content/areas/en-US/';
   FirebaseDatabase database = FirebaseDatabase.instance;
   TextEditingController controller = new TextEditingController();
 
   final GlobalKey<FormState> _newMemberFormKey = GlobalKey<FormState>();
   List<DropdownMenuItem> items = [];
   String selectedValue;
-
+  @override
   void initState() {
-    super.initState();
     getAreas();
+    controller.addListener(() {
+      setState(() {});
+    });
+    super.initState();
   }
 
-  _showDateTimePicker() async {
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  _showDateTimePicker(String userId) async {
     selected = await showDatePicker(
         context: context,
         initialDate: DateTime.now(),
         firstDate: DateTime(1900),
         lastDate: DateTime(2050));
     // locale: Locale('fr'));
-
     setState(() {});
   }
 
   //final model = MainModel();
   void getAreas() async {
-    DataSnapshot snapshot = await database
-        .reference()
-        .child('flamelink/environments/stage/content/areas/en-US/')
-        .once();
+    DataSnapshot snapshot = await database.reference().child(path).once();
 
     Map<dynamic, dynamic> _areas = snapshot.value;
     List list = _areas.values.toList();
     List<Area> fbAreas = list.map((f) => Area.json(f)).toList();
 
     if (snapshot.value != null) {
-      for (var t in widget.areas) {
+      for (var t in fbAreas) {
         String sValue = "${t.areaId}" + " " + "${t.name}";
         items.add(DropdownMenuItem(
             child: Text(
@@ -109,6 +114,7 @@ class _NewMemberPage extends State<NewMemberPage> {
     });
   }
 
+  bool validData;
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   bool validateAndSave(String userId) {
     final form = _newMemberFormKey.currentState;
@@ -117,8 +123,11 @@ class _NewMemberPage extends State<NewMemberPage> {
       _newMemberForm.birthDate =
           DateFormat('yyyy-MM-dd').format(selected).toString();
       _newMemberForm.email = userId;
+      setState(() {
+        validData = true;
+      });
       // isloading(true);
-      print('valide entry');
+      print('valide entry $validData');
       _newMemberFormKey.currentState.save();
 
       print('${_newMemberForm.sponsorId}:${_newMemberForm.birthDate}');
@@ -159,106 +168,111 @@ class _NewMemberPage extends State<NewMemberPage> {
                 padding: EdgeInsets.all(8.0),
                 child: Center(
                   child: SingleChildScrollView(
-                    child: Column(children: <Widget>[
-                      ListTile(
-                        contentPadding: EdgeInsets.only(left: 8),
-                        leading: Icon(Icons.vpn_key,
-                            size: 25.0, color: Colors.pink[500]),
-                        title: TextFormField(
-                          textAlign: TextAlign.center,
-                          controller: controller,
-                          enabled: !veri ? true : false,
-                          style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold),
-                          decoration: InputDecoration(
-                            hintText: ' ادخل رقم العضو الراعى',
-                            hintStyle: TextStyle(color: Colors.grey[400]),
-                          ),
-                          keyboardType: TextInputType.number,
-                          validator: (value) => value.isEmpty
-                              ? 'Code is Empty !!'
-                              : RegExp('[0-9]').hasMatch(value)
-                                  ? null
-                                  : 'invalid code !!',
-                          onSaved: (_) {
-                            _newMemberForm.sponsorId = _nodeData.distrId;
-                          },
-                        ),
-                        trailing: IconButton(
-                          icon: !veri && controller.text.length > 0
-                              ? Icon(
-                                  Icons.check,
-                                  size: 30.0,
-                                  color: Colors.blue,
-                                )
-                              : controller.text.length > 0
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          ListTile(
+                            contentPadding: EdgeInsets.only(left: 8),
+                            leading: Icon(Icons.vpn_key,
+                                size: 25.0, color: Colors.pink[500]),
+                            title: TextFormField(
+                              textAlign: TextAlign.center,
+                              controller: controller,
+                              enabled: !veri ? true : false,
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.bold),
+                              decoration: InputDecoration(
+                                hintText: ' ادخل رقم العضو الراعى',
+                                hintStyle: TextStyle(color: Colors.grey[400]),
+                              ),
+                              keyboardType: TextInputType.number,
+                              validator: (value) => value.isEmpty
+                                  ? 'Code is Empty !!'
+                                  : RegExp('[0-9]').hasMatch(value)
+                                      ? null
+                                      : 'invalid code !!',
+                              onSaved: (_) {
+                                _newMemberForm.sponsorId = _nodeData.distrId;
+                              },
+                            ),
+                            trailing: IconButton(
+                              icon: !veri && controller.text.length > 0
                                   ? Icon(
-                                      Icons.close,
-                                      size: 28.0,
-                                      color: Colors.grey,
+                                      Icons.check,
+                                      size: 30.0,
+                                      color: Colors.blue,
                                     )
-                                  : Container(),
-                          color: Colors.pink[900],
-                          onPressed: () async {
-                            if (!veri) {
-                              veri = await model.leaderVerification(
-                                  controller.text.padLeft(8, '0'));
-                              if (veri) {
-                                _nodeData = await model
-                                    .nodeJson(controller.text.padLeft(8, '0'));
-                                controller.text =
-                                    _nodeData.distrId + '    ' + _nodeData.name;
-                              } else {
-                                resetVeri();
-                              }
-                            } else {
-                              resetVeri();
-                            }
-                          },
-                          splashColor: Colors.pink,
-                        ),
-                      ),
-                      veri
-                          ? Container(
-                              child: Column(
-                                children: <Widget>[
-                                  ListTile(
-                                    leading: RawMaterialButton(
-                                      child: Icon(
-                                        GroovinMaterialIcons.calendar_check,
-                                        size: 26.0,
-                                        color: Colors.white,
-                                      ),
-                                      shape: CircleBorder(),
-                                      highlightColor: Colors.pink[500],
-                                      elevation: 8,
-                                      fillColor: Colors.pink[500],
-                                      onPressed: () {
-                                        _showDateTimePicker();
-                                      },
-                                      splashColor: Colors.pink[900],
-                                    ),
-                                    title: selected != null
-                                        ? Text(DateFormat('yyyy-MM-dd')
-                                            .format(selected)
-                                            .toString())
-                                        : Text(''),
-                                    subtitle: Padding(
-                                      padding: EdgeInsets.only(right: 10),
-                                      child: selected == null
-                                          ? Text('تاريخ الميلاد')
-                                          : Text(''),
-                                    ),
+                                  : controller.text.length > 0
+                                      ? Icon(
+                                          Icons.close,
+                                          size: 28.0,
+                                          color: Colors.grey,
+                                        )
+                                      : Container(),
+                              color: Colors.pink[900],
+                              onPressed: () async {
+                                if (!veri) {
+                                  veri = await model.leaderVerification(
+                                      controller.text.padLeft(8, '0'));
+                                  if (veri) {
+                                    _nodeData = await model.nodeJson(
+                                        controller.text.padLeft(8, '0'));
+                                    controller.text = _nodeData.distrId +
+                                        '    ' +
+                                        _nodeData.name;
+                                  } else {
+                                    resetVeri();
+                                  }
+                                } else {
+                                  resetVeri();
+                                }
+                              },
+                              splashColor: Colors.pink,
+                            ),
+                          ),
+                          veri
+                              ? Container(
+                                  child: Column(
+                                    children: <Widget>[
+                                      ListTile(
+                                        leading: RawMaterialButton(
+                                          child: Icon(
+                                            GroovinMaterialIcons.calendar_check,
+                                            size: 26.0,
+                                            color: Colors.white,
+                                          ),
+                                          shape: CircleBorder(),
+                                          highlightColor: Colors.pink[500],
+                                          elevation: 8,
+                                          fillColor: Colors.pink[500],
+                                          onPressed: () {
+                                            _showDateTimePicker(
+                                                model.userInfo.distrId);
+                                          },
+                                          splashColor: Colors.pink[900],
+                                        ),
+                                        title: selected != null
+                                            ? Text(DateFormat('yyyy-MM-dd')
+                                                .format(selected)
+                                                .toString())
+                                            : Text(''),
+                                        subtitle: Padding(
+                                          padding: EdgeInsets.only(right: 10),
+                                          child: selected == null
+                                              ? Text('تاريخ الميلاد')
+                                              : Text(''),
+                                        ),
 
-                                    //trailing:
-                                  ),
-                                  Divider(
-                                    height: 6,
-                                    color: Colors.black,
-                                  ),
-                                  /*  TextFormField(
+                                        //trailing:
+                                      ),
+                                      Divider(
+                                        height: 6,
+                                        color: Colors.black,
+                                      ),
+                                      /*  TextFormField(
                                     decoration: InputDecoration(
                                         labelText: 'الاسم العائلي',
                                         contentPadding: EdgeInsets.all(8.0),
@@ -271,49 +285,57 @@ class _NewMemberPage extends State<NewMemberPage> {
                                       _newMemberForm.familyName = value;
                                     },
                                   ),*/
-                                  TextFormField(
-                                    decoration: InputDecoration(
-                                        labelText: 'اسم العضو',
-                                        contentPadding: EdgeInsets.all(8.0),
-                                        icon: Icon(
-                                            GroovinMaterialIcons.format_title,
-                                            color: Colors.pink[500])),
-                                    validator: (value) {},
-                                    keyboardType: TextInputType.text,
-                                    onSaved: (String value) {
-                                      _newMemberForm.name = value;
-                                    },
-                                  ),
-                                  TextFormField(
-                                    decoration: InputDecoration(
-                                        labelText: 'الرقم الوطنى',
-                                        contentPadding: EdgeInsets.all(8.0),
-                                        icon: Icon(Icons.assignment_ind,
-                                            color: Colors.pink[500])),
-                                    autocorrect: true,
-                                    textCapitalization:
-                                        TextCapitalization.sentences,
-                                    keyboardType: TextInputType.text,
-                                    onSaved: (String value) {
-                                      _newMemberForm.personalId = value;
-                                    },
-                                  ),
-                                  TextFormField(
-                                    decoration: InputDecoration(
-                                        labelText: 'رقم الهاتف',
-                                        filled: true,
-                                        fillColor: Colors.transparent,
-                                        contentPadding: EdgeInsets.all(8.0),
-                                        icon: Icon(
-                                          Icons.phone,
-                                          color: Colors.pink[500],
-                                        )),
-                                    keyboardType: TextInputType.number,
-                                    onSaved: (String value) {
-                                      _newMemberForm.telephone = value;
-                                    },
-                                  ),
-                                  /*  TextFormField(
+                                      TextFormField(
+                                        autovalidate: true,
+                                        decoration: InputDecoration(
+                                            labelText: 'اسم العضو',
+                                            contentPadding: EdgeInsets.all(8.0),
+                                            icon: Icon(
+                                                GroovinMaterialIcons
+                                                    .format_title,
+                                                color: Colors.pink[500])),
+                                        validator: (value) {
+                                          String _msg;
+                                          value.length < 9
+                                              ? _msg = 'name error'
+                                              : _msg = '';
+                                          return _msg;
+                                        },
+                                        keyboardType: TextInputType.text,
+                                        onSaved: (String value) {
+                                          _newMemberForm.name = value;
+                                        },
+                                      ),
+                                      TextFormField(
+                                        decoration: InputDecoration(
+                                            labelText: 'الرقم الوطنى',
+                                            contentPadding: EdgeInsets.all(8.0),
+                                            icon: Icon(Icons.assignment_ind,
+                                                color: Colors.pink[500])),
+                                        autocorrect: true,
+                                        textCapitalization:
+                                            TextCapitalization.sentences,
+                                        keyboardType: TextInputType.text,
+                                        onSaved: (String value) {
+                                          _newMemberForm.personalId = value;
+                                        },
+                                      ),
+                                      TextFormField(
+                                        decoration: InputDecoration(
+                                            labelText: 'رقم الهاتف',
+                                            filled: true,
+                                            fillColor: Colors.transparent,
+                                            contentPadding: EdgeInsets.all(8.0),
+                                            icon: Icon(
+                                              Icons.phone,
+                                              color: Colors.pink[500],
+                                            )),
+                                        keyboardType: TextInputType.number,
+                                        onSaved: (String value) {
+                                          _newMemberForm.telephone = value;
+                                        },
+                                      ),
+                                      /*  TextFormField(
                                     decoration: InputDecoration(
                                         labelText: 'البريد',
                                         filled: true,
@@ -328,39 +350,58 @@ class _NewMemberPage extends State<NewMemberPage> {
                                       _newMemberForm.email = value;
                                     },
                                   ),*/
-                                  TextFormField(
-                                    decoration: InputDecoration(
-                                        labelText: 'العنوان',
-                                        filled: true,
-                                        fillColor: Colors.transparent,
-                                        contentPadding: EdgeInsets.all(8.0),
-                                        icon: Icon(
-                                          GroovinMaterialIcons.home,
-                                          color: Colors.pink[500],
-                                        )),
-                                    keyboardType: TextInputType.text,
-                                    onSaved: (String value) {
-                                      _newMemberForm.address = value;
-                                    },
-                                  ),
-                                  SearchableDropdown(
-                                    hint: Text(''),
-                                    icon: Icon(
-                                      Icons.arrow_drop_down_circle,
-                                      size: 30,
-                                    ),
-                                    iconEnabledColor: Colors.pink[500],
-                                    iconDisabledColor: Colors.grey,
-                                    items: items,
-                                    value: selectedValue,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        selectedValue = value;
-                                        print('selectedValue:{$value}');
-                                      });
-                                    },
-                                  ),
-                                  /*FormField<Area>(
+                                      TextFormField(
+                                        decoration: InputDecoration(
+                                            labelText: 'العنوان',
+                                            filled: true,
+                                            fillColor: Colors.transparent,
+                                            contentPadding: EdgeInsets.all(8.0),
+                                            icon: Icon(
+                                              GroovinMaterialIcons.home,
+                                              color: Colors.pink[500],
+                                            )),
+                                        keyboardType: TextInputType.text,
+                                        onSaved: (String value) {
+                                          _newMemberForm.address = value;
+                                        },
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: <Widget>[
+                                          Icon(
+                                            Icons.add_location,
+                                            size: 28,
+                                            color: Colors.pink[500],
+                                          ),
+                                          SearchableDropdown(
+                                            hint: Text('المنطقه'),
+                                            icon: Icon(
+                                              Icons.arrow_drop_down_circle,
+                                              size: 30,
+                                            ),
+                                            iconEnabledColor: Colors.pink[200],
+                                            iconDisabledColor: Colors.grey,
+                                            items: items,
+                                            value: selectedValue,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                selectedValue = value;
+                                                var areaSplit =
+                                                    selectedValue.split('\ ');
+                                                _newMemberForm.areaId =
+                                                    areaSplit.first;
+                                                print(
+                                                    'split:${_newMemberForm.areaId}');
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      )
+
+                                      /*FormField<Area>(
                                     initialValue: _newMemberForm.areaId = null,
                                     onSaved: (val) =>
                                         _newMemberForm.areaId = val.areaId,
@@ -419,11 +460,11 @@ class _NewMemberPage extends State<NewMemberPage> {
                                       );
                                     },
                                   ),*/
-                                ],
-                              ),
-                            )
-                          : Container()
-                    ]),
+                                    ],
+                                  ),
+                                )
+                              : Container()
+                        ]),
                   ),
                 ),
               ),
@@ -514,8 +555,6 @@ class _NewMemberPage extends State<NewMemberPage> {
                   InkWell(
                     onTap: () {
                       Navigator.of(context).pop();
-                      Navigator.pushNamedAndRemoveUntil(
-                          context, '/bottomnav', (_) => false);
                     },
                     child: Container(
                       height: 35.0,

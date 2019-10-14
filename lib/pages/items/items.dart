@@ -31,20 +31,20 @@ class _ItemsPage extends State<ItemsPage> {
 
   @override
   void initState() {
-    super.initState();
     databaseReference = database.reference().child(path);
     Query query = databaseReference.orderByChild('catalogue').equalTo(true);
 
     //!TODO ADD QUERY TO FILTER PRODUCTS NOT IN CATALOGE..
     subAdd = query.onChildAdded.listen(_onItemEntryAdded);
     subChanged = query.onChildChanged.listen(_onItemEntryChanged);
+    super.initState();
   }
 
   @override
   void dispose() {
-    super.dispose();
     subAdd?.cancel();
     subChanged?.cancel();
+    super.dispose();
   }
 
   @override

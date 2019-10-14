@@ -29,7 +29,7 @@ class _TicketsState extends State<Tickets> {
   var subAdd;
   var subChanged;
   var subDel;
-  var subSelect;
+  //var subSelect;
   List<DropdownMenuItem> items = [];
 
   String selectedValue;
@@ -63,7 +63,7 @@ class _TicketsState extends State<Tickets> {
     subAdd?.cancel();
     subChanged?.cancel();
     subDel?.cancel();
-    subSelect?.cancel();
+    // subSelect?.cancel();
   }
 
   @override
@@ -239,7 +239,34 @@ class _TicketsState extends State<Tickets> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.end,
                                           children: <Widget>[
-                                            Text(ticket.fromClient.toString())
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.pink[900],
+                                                    blurRadius: 10.0,
+                                                  ),
+                                                ],
+                                                borderRadius:
+                                                    BorderRadius.circular(25.0),
+                                                border: Border.all(
+                                                  width: 3.0,
+                                                  color: Colors.deepPurple[300],
+                                                ),
+                                                color: Colors.deepPurple[300],
+                                                // shape: BoxShape.circle,
+                                              ),
+                                              child: Text(
+                                                ticket.fromClient.toString(),
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            // Text(ticket.fromSupport.toString())
                                           ],
                                         )
                                       : Container()

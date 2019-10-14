@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'details_tabs/howto.dart';
-
-import 'details_tabs/specs.dart';
 import 'gredients.dart';
 
 Widget favPrice(String price) {
@@ -147,6 +145,11 @@ class _FooterState extends State<Footer> with SingleTickerProviderStateMixin {
       length: _tabs.length,
       vsync: this,
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override

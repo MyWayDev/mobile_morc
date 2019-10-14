@@ -10,9 +10,7 @@ import 'package:mor_release/models/item.dart';
 import 'package:mor_release/models/item.order.dart';
 import 'package:mor_release/models/lock.dart';
 import 'package:mor_release/models/sales.order.dart';
-import 'package:mor_release/models/ticket.dart';
-import 'package:mor_release/pages/messages/chat.dart';
-import 'package:mor_release/pages/messages/tickets.dart';
+
 import 'package:scoped_model/scoped_model.dart';
 import '../models/user.dart';
 import 'dart:convert';
@@ -1327,7 +1325,7 @@ for( var i = 0 ; i < _list.length; i++){
         locKCart(context); //! uncomment this before buildR
         locKApp(context); //! uncomment this before buildR
         userAccess(key, context);
-        getArea();
+        // getArea();
 
         try {
           _user = await FirebaseAuth.instance.signInWithEmailAndPassword(

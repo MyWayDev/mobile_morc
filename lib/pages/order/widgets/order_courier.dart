@@ -30,10 +30,16 @@ class _CourierOrder extends State<CourierOrder> {
   Courier _chosenValue;
   Courier stateValue;
   int courierFee;
+  @override
   void initState() {
     getinit();
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   void getinit() async {

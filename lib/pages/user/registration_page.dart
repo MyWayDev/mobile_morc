@@ -14,6 +14,16 @@ class RegistrationPage extends StatefulWidget {
 //final FirebaseDatabase dataBase = FirebaseDatabase.instance;
 @override
 class _RegistrationPage extends State<RegistrationPage> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   final model = MainModel();
 
   final GlobalKey<FormState> _registrationFormKey = GlobalKey<FormState>();

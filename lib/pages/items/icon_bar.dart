@@ -1,7 +1,6 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:mor_release/models/item.dart';
-import 'package:mor_release/pages/items/item.details.dart';
 import 'package:mor_release/pages/items/itemDetails/details.dart';
 import 'package:mor_release/scoped/connected.dart';
 import 'package:mor_release/widgets/stock_dialog.dart';
@@ -19,6 +18,16 @@ class IconBar extends StatefulWidget {
 
 @override
 class _IconBar extends State<IconBar> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<MainModel>(

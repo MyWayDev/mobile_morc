@@ -1,4 +1,3 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:mor_release/bottom_nav.dart';
 import 'package:mor_release/models/lock.dart';
@@ -26,8 +25,14 @@ class _LoginScreen extends State<LoginScreen> {
     'password': null,
   };
 
+  @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   bool _opacity = false;
@@ -211,12 +216,14 @@ class _LoginScreen extends State<LoginScreen> {
                           controller: loginController,
                           obscureText: true,
                           validator: (value) {
+                            String _msg;
                             if (value.isEmpty) {
-                              return 'خطأ فى البيان';
+                              _msg = 'خطأ فى البيان';
                             }
                             if (value.length < 5) {
-                              return 'خطأ فى البيان';
+                              _msg = 'خطأ فى البيان';
                             }
+                            return _msg;
                           },
                           onSaved: (String value) {
                             _userFormData['password'] = value;

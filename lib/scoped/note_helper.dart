@@ -1,10 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/painting.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:http/http.dart' as http;
 
 FlutterLocalNotificationsPlugin notifications;
 NotificationDetails get _noSound {

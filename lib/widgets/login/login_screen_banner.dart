@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mor_release/models/lock.dart';
 import 'package:mor_release/scoped/connected.dart';
 import 'package:scoped_model/scoped_model.dart';
 

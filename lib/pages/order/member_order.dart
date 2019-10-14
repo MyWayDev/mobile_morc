@@ -1,15 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:mor_release/models/courier.dart';
-import 'package:mor_release/models/user.dart';
-import 'package:mor_release/pages/gift/gift.dart';
-import 'package:mor_release/pages/gift/gift_list.dart';
 import 'package:mor_release/pages/order/widgets/order_courier.dart';
-import 'package:mor_release/pages/order/widgets/order_save.dart';
-import 'package:mor_release/pages/order/widgets/order_summary.dart';
 import 'package:mor_release/scoped/connected.dart';
-import 'package:mor_release/widgets/dropdownform.dart';
-import 'package:mor_release/widgets/save_dialog.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class MemberOrder extends StatefulWidget {
@@ -25,11 +17,16 @@ class MemberOrder extends StatefulWidget {
 @override
 class _MemberOrder extends State<MemberOrder> {
   List<Courier> shipment = [];
-
+  @override
   void initState() {
     getinit();
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   void getinit() async {

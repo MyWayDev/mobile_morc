@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:mor_release/models/courier.dart';
 import 'package:mor_release/pages/order/member_order.dart';
 import 'package:mor_release/pages/order/node_order.dart';
-import 'package:mor_release/pages/order/widgets/order_save.dart';
 import 'package:mor_release/scoped/connected.dart';
 import 'package:mor_release/widgets/color_loader_2.dart';
-import 'package:mor_release/widgets/switch_page.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class EndOrder extends StatefulWidget {

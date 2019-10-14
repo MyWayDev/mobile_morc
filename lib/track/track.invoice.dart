@@ -59,9 +59,15 @@ class _TrackInvoice extends State<TrackInvoice> {
     //return firstInvoice;
   }
 
+  @override
   void initState() {
     _getInvoices(widget.userId);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   Color _statusColor(String status) {
