@@ -196,13 +196,16 @@ class _CourierOrder extends State<CourierOrder> {
                           physics: ClampingScrollPhysics(),
                           scrollDirection: Axis.vertical,
                           children: <Widget>[
-                            stateValue != null && model.giftPacks.length == 0
+                            stateValue != null &&
+                                    model.giftPacks.length == 0 &&
+                                    model.promoPacks.length == 0
                                 ? OrderSummary(stateValue.courierId, courierFee,
                                     model.userInfo.distrId, controller.text)
                                 : Container(),
                             courierFee != null &&
                                     model.orderBp() > 0 &&
-                                    model.giftPacks.length == 0
+                                    model.giftPacks.length == 0 &&
+                                    model.promoPacks.length == 0
                                 ? OrderSave(
                                     stateValue.courierId,
                                     courierFee,

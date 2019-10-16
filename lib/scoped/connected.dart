@@ -23,7 +23,7 @@ import 'package:firebase_core/firebase_core.dart';
 
 class MainModel extends Model {
   // ** items //** */
-  final String _version = '2.80B'; //!Modify for every release version./.
+  final String _version = '3.0r'; //!Modify for every release version./.
   final FirebaseDatabase database = FirebaseDatabase.instance;
   DatabaseReference databaseReference;
   int noteCount;
@@ -745,7 +745,7 @@ class MainModel extends Model {
       var promoT = DateFormat('yyyy-MM-dd').format(DateTime.parse(x.toDate));
       promoFrom = DateTime.parse(promoF).difference(DateTime.parse(serverT));
       promoTo = DateTime.parse(promoT).difference(DateTime.parse(serverT));
-      if (promoFrom.inDays <= 1 && promoTo.inDays >= 1) {
+      if (promoFrom.inDays <= 0 && promoTo.inDays >= 0) {
         // print('Fromdays:${promoFrom.inDays}ToDays:${promoTo.inDays}');
         promosOngoing.add(x);
       }

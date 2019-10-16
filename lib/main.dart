@@ -36,6 +36,7 @@ class _MyApp extends State<MyApp> {
   final MainModel model = MainModel();
 
   Random random = Random();
+  String pathLink = 'flamelink/environments/production/content/tokens/en-US/';
   static final FirebaseDatabase database = FirebaseDatabase.instance;
   final DatabaseReference databaseReference = database.reference();
   final firebaseMessaging = new FirebaseMessaging();
@@ -120,7 +121,7 @@ class _MyApp extends State<MyApp> {
 
   void initTokenListen() {
     firebaseMessaging.getToken().then((_token) {
-      final String path = 'tokens-list/$_token';
+      final String path = pathLink + 'tokens-list/$_token';
       subAdd =
           databaseReference.child(path).onChildAdded.listen(_onItemEntryAdded);
 
@@ -190,7 +191,7 @@ class _MyApp extends State<MyApp> {
   update(String token) {
     print(token);
     DatabaseReference databaseReference = new FirebaseDatabase().reference();
-    databaseReference.child('tokens-list/$token').update({
+    databaseReference.child(pathLink + 'tokens-list/$token').update({
       "z": {"body": '', "image": '', "seen": true, "title": 'hide'}
     });
     setState(() {});

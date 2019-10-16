@@ -159,7 +159,6 @@ class _SaveDialog extends State<SaveDialog> {
                                           fillColor: Colors.green,
                                           onPressed: () async {
                                             isLoading(true, model);
-
                                             OrderMsg msg =
                                                 await model.orderBalanceCheck(
                                                     widget.courierId,

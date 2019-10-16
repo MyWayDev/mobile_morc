@@ -28,7 +28,7 @@ class _TicketSelectState extends State<TicketSelect> {
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       title: Directionality(
-        child: Text('نوع ااشكاية'),
+        child: Text('نوع الشكاية'),
         textDirection: TextDirection.rtl,
       ),
       content: FormBuilder(

@@ -93,10 +93,11 @@ class _CatState extends State<Cat> {
         : ScopedModelDescendant<MainModel>(
             builder: (BuildContext context, Widget child, MainModel model) {
             return PDFViewerScaffold(
+                primary: true,
                 appBar: AppBar(
                   centerTitle: true,
                   title: Text("الكتالوج"),
-                  //  actions: <Widget>[],
+                  actions: <Widget>[],
                 ),
                 path: pathPDF);
           });

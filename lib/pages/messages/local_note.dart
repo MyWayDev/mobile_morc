@@ -21,6 +21,7 @@ class _LocalNotificationState extends State<LocalNotification> {
 
   List<Notify> notifyData = List();
   List<Notify> filteredNotify = [];
+  String path = 'flamelink/environments/production/content/tokens/en-US';
   FirebaseDatabase database = FirebaseDatabase.instance;
 
   DatabaseReference databaseReference;
@@ -31,15 +32,15 @@ class _LocalNotificationState extends State<LocalNotification> {
 
   @override
   void initState() {
-    super.initState();
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     _cancelAllNotifications();
     databaseReference =
-        database.reference().child("tokens-list/${widget.token}");
+        database.reference().child(path + "tokens-list/${widget.token}");
     Query query = databaseReference.orderByKey();
     subAdd = query.onChildAdded.listen(_onItemEntryAdded);
     subChanged = query.onChildChanged.listen(_onItemEntryChanged);
     subDel = query.onChildRemoved.listen(_onItemEntryDeleted);
+    super.initState();
   }
 
   @override
