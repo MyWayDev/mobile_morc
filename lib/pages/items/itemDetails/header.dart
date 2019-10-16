@@ -60,7 +60,7 @@ Widget _buildIconButton(BuildContext context, MainModel model, String itemId) {
                       model.itemData,
                       model.getIndex(itemId),
                       model.iCount(model.getIndex(itemId), item: itemId),
-                      pop: true,
+                      pop: false,
                     ));
           },
         )

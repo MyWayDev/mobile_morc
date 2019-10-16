@@ -141,7 +141,7 @@ class _MyApp extends State<MyApp> {
 
   void _onItemEntryAdded(Event event) {
     noteList.add(Notify.fromSnapshot(event.snapshot));
-    print('noteLenght:${noteList.length} snapshot key:${event.snapshot.key}');
+    //  print('noteLenght:${noteList.length} snapshot key:${event.snapshot.key}');
     _noteSnapshotCount();
     setState(() {});
   }

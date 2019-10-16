@@ -176,6 +176,7 @@ class ChatScreenState extends State<ChatScreen> {
             .where((m) => m.idTo == widget.id)
             .forEach((k) => dbref.child(k.key).update({"seen": true}))
         : null;
+
     updateSeenCount();
   }
 

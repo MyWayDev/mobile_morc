@@ -92,7 +92,7 @@ class _ItemsPage extends State<ItemsPage> {
                           label: Text(
                             model.orderBp().toString(),
                             style: TextStyle(
-                                color: Colors.red,
+                                color: Colors.pink[100],
                                 fontSize: 16.0,
                                 fontWeight: FontWeight.bold),
                           ),

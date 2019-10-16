@@ -8,7 +8,6 @@ import 'package:mor_release/track/track.tabs.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:badges/badges.dart';
 import '../../cat.dart';
-import '../profile.dart';
 
 //////////////////////////////////////////////////////
 ///
@@ -30,19 +29,19 @@ class ItemsTabs extends StatelessWidget {
             AppBar(
               title: Text('القائمه'),
             ),
-            ListTile(
+            /* ListTile(
                 leading: Icon(Icons.settings),
                 title: Text('Profile'),
                 onTap: () {
                   //model.signOut();
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => Settings()));
-                }),
+                }),*/
             ListTile(
                 leading: Icon(Icons.image),
-                title: Text('Cat'),
+                title: Text('الكتالوج'),
                 onTap: () {
-                  print(model.settings.pdfUrl);
+                  //print(model.settings.pdfUrl);
 
                   Navigator.push(
                       context,

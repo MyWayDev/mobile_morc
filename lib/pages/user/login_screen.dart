@@ -320,7 +320,7 @@ class _LoginScreen extends State<LoginScreen> {
     if (await model.formEntry(validateFormEntry(),
         model.logIn(_userFormData['id'], _userFormData['password'], context))) {
       print('userFormId:${_userFormData['id']}');
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => BottomNav(_userFormData['id']),

@@ -10,10 +10,11 @@ class OrderSave extends StatelessWidget {
   final int courierFee;
   final String distrId;
   final String note;
+  final String userId;
   final String areaId;
 
-  OrderSave(
-      this.courierId, this.courierFee, this.distrId, this.note, this.areaId);
+  OrderSave(this.courierId, this.courierFee, this.distrId, this.note,
+      this.areaId, this.userId);
   double orderTotal(MainModel model) {
     return courierFee + model.orderSum() + model.settings.adminFee;
   }
@@ -63,11 +64,14 @@ class OrderSave extends StatelessWidget {
             ),
             onPressed: () {
               model.isBalanceChecked = true;
+
+              model.promoOrderList.forEach(
+                  (f) => print('bp?:${model.orderBp() / f.bp} qty:${f.qty}'));
               //model.isTypeing = false;
               showDialog(
                   context: context,
-                  builder: (_) =>
-                      SaveDialog(courierId, courierFee, distrId, note, areaId));
+                  builder: (_) => SaveDialog(
+                      courierId, courierFee, distrId, note, areaId, userId));
             }));
   }
 }

@@ -195,7 +195,8 @@ class _StockDialog extends State<StockDialog> {
                                   model.settings.safetyStock,
                                   model.getItemOrderQty(itemData[index]));
                             }
-                          } else {
+                          }
+                          /*else {
                             if (_data.number != 0 &&
                                 _stock >= 1 &&
                                 _stock - model.settings.safetyStock >=
@@ -219,7 +220,7 @@ class _StockDialog extends State<StockDialog> {
                                   model.settings.safetyStock,
                                   model.getItemOrderQty(itemData[index]));
                             }
-                          }
+                          }*/
                         }
                         if (widget.pop) {
                           Navigator.push(

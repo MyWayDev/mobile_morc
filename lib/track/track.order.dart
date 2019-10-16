@@ -51,6 +51,7 @@ class _TrackOrder extends State<TrackOrder> {
       isLoading(false, model);
       print('ERROR UPDATE SO!');
     }
+    _getSorders(widget.userId);
   }
 
   void _getSorders(String userId) async {
@@ -212,6 +213,7 @@ class _TrackOrder extends State<TrackOrder> {
                 onPressed: () {
                   if (!edit) {
                     _deleteSo(docId, distrId, model);
+
                     Navigator.of(context).pop();
                   } else {
                     reBuildOrderFromLegacy(sOrder, model);

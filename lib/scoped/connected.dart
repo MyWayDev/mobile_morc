@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:intl/intl.dart';
 import 'package:mor_release/models/area.dart';
 import 'package:mor_release/models/courier.dart';
 import 'package:mor_release/models/gift.dart';
@@ -610,7 +611,7 @@ class MainModel extends Model {
       // print(subTime);
       _stn = DateTime.parse(subTime);
     }
-
+    // print("serverTime:$_stn");
     return _stn;
   }
 
@@ -730,7 +731,27 @@ class MainModel extends Model {
     promos = list.map((f) => Promo.fbList(f)).toList();
     //bool activePromo = promoIsActive(promos);
     //print('Is Active Promo : => $activePromo');
-    return promos ?? [];
+    DateTime serverTime;
+    Duration promoFrom;
+    Duration promoTo;
+
+    List<Promo> promosOngoing = [];
+    serverTime = await serverTimeNow();
+
+    for (var x in promos) {
+      var serverT = DateFormat('yyyy-MM-dd').format(serverTime);
+
+      var promoF = DateFormat('yyyy-MM-dd').format(DateTime.parse(x.fromDate));
+      var promoT = DateFormat('yyyy-MM-dd').format(DateTime.parse(x.toDate));
+      promoFrom = DateTime.parse(promoF).difference(DateTime.parse(serverT));
+      promoTo = DateTime.parse(promoT).difference(DateTime.parse(serverT));
+      if (promoFrom.inDays <= 1 && promoTo.inDays >= 1) {
+        // print('Fromdays:${promoFrom.inDays}ToDays:${promoTo.inDays}');
+        promosOngoing.add(x);
+      }
+      //  print('Fromdays:${promoFrom.inDays}ToDays:${promoTo.inDays}');
+    }
+    return promosOngoing ?? [];
   }
 
   List<Gift> giftQty;
@@ -753,20 +774,6 @@ class MainModel extends Model {
     }
   }
 
-  bool promoIsActive(List<Promo> promos) {
-    bool isActive = false;
-    for (var p in promos) {
-      DateTime _from = DateTime.parse(p.fromDate);
-      DateTime _to = DateTime.parse(p.toDate);
-      if (_from.isBefore(DateTime.now()) || _to.isAfter(DateTime.now())) {
-        isActive = false;
-      } else {
-        isActive = true;
-      }
-    }
-    return isActive;
-  }
-
   List<Promo> promoQty;
   Future<void> checkPromo(int orderbp, int promobp) async {
     int _qualifyBp = orderbp - promobp;
@@ -785,7 +792,7 @@ class MainModel extends Model {
         }
       }
     }
-    print('promos length==>${promos.length}');
+    //print('promos length==>${promos.length}');
   }
 
   bool isloading = false;
@@ -961,7 +968,7 @@ class MainModel extends Model {
     OrderMsg msg;
     List<ItemOrder> orderOutList = List();
     print(itemorderlist.length);
-
+    //promoOrderList.forEach((p) => print('bp:${p.bp}Qty:${p.qty}'));
     for (ItemOrder item in itemorderlist) {
       await getStock(item.itemId).then((i) {
         if (i < item.qty) {
@@ -1143,7 +1150,7 @@ for(var area in areas){
       }
     }
     List companies = ships.map((f) => Courier.fromList(f)).toList();
-    companies.forEach((c) => print(c));
+    // companies.forEach((c) => print(c));
 //companies.forEach((f)=>print('${f.name} : ${f.courierId}'));
 
     return companies;

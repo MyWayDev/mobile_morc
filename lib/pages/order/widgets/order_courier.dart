@@ -14,8 +14,9 @@ class CourierOrder extends StatefulWidget {
   final List<dynamic> couriers;
   final String areaId;
   final String distrId;
+  final String userId;
 
-  CourierOrder(this.couriers, this.areaId, this.distrId);
+  CourierOrder(this.couriers, this.areaId, this.distrId, this.userId);
 
   @override
   State<StatefulWidget> createState() {
@@ -59,7 +60,7 @@ class _CourierOrder extends State<CourierOrder> {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     Container(
-                      height: 32,
+                      height: 38,
                       child: TextField(
                         textAlign: TextAlign.right,
                         maxLines: 1,
@@ -127,7 +128,7 @@ class _CourierOrder extends State<CourierOrder> {
                         : Container(),
                     model.giftPacks.length == 0 && model.promoPacks.length == 0
                         ? Container(
-                            height: 55,
+                            height: 62,
                             child: FormField<Courier>(
                               initialValue: _chosenValue = null,
                               onSaved: (val) => _chosenValue = val,
@@ -207,7 +208,8 @@ class _CourierOrder extends State<CourierOrder> {
                                     courierFee,
                                     widget.distrId,
                                     controller.text,
-                                    widget.areaId)
+                                    widget.areaId,
+                                    widget.userId)
                                 : Container(),
                           ],
                         ))
@@ -221,14 +223,3 @@ class _CourierOrder extends State<CourierOrder> {
     });
   }
 }
-
-/*     courierFee != null
-                                      ? SingleChildScrollView(
-                                          child: OrderSave(
-                                              stateValue.courierId,
-                                              courierFee,
-                                              widget.distrId,
-                                              controller.text,
-                                              widget.areaId),
-                                        )
-                                      : Container(),*/

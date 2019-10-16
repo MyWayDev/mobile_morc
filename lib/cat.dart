@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_full_pdf_viewer/full_pdf_viewer_scaffold.dart';
 import 'package:flutter_full_pdf_viewer/flutter_full_pdf_viewer.dart';
+import 'package:mor_release/scoped/connected.dart';
 import 'package:mor_release/widgets/color_loader_2.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class Cat extends StatefulWidget {
   final String pdfUrl;
@@ -31,12 +32,13 @@ class _CatState extends State<Cat> {
       });
     });*/
     downloadPdfFile(widget.pdfUrl).then((f) {
-      setState(() {
-        pathPDF = f.path;
-
-        print(pathPDF);
-      });
+      pathPDF = f.path;
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   Future<File> downloadPdfFile(String pdfUrl) async {
@@ -88,16 +90,15 @@ class _CatState extends State<Cat> {
         ? Center(
             child: ColorLoader2(),
           )
-        : PDFViewerScaffold(
-            appBar: AppBar(
-              title: Text("Catalogue"),
-              actions: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.share),
-                  onPressed: () {},
+        : ScopedModelDescendant<MainModel>(
+            builder: (BuildContext context, Widget child, MainModel model) {
+            return PDFViewerScaffold(
+                appBar: AppBar(
+                  centerTitle: true,
+                  title: Text("الكتالوج"),
+                  //  actions: <Widget>[],
                 ),
-              ],
-            ),
-            path: pathPDF);
+                path: pathPDF);
+          });
   }
 }

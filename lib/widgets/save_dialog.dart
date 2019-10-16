@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:mor_release/bottom_nav.dart';
 import 'package:mor_release/models/item.order.dart';
 import 'package:mor_release/scoped/connected.dart';
 import 'package:mor_release/widgets/color_loader_2.dart';
@@ -12,9 +13,10 @@ class SaveDialog extends StatefulWidget {
   final String distrId;
   final String note;
   final String areaId;
+  final String userId;
 
-  SaveDialog(
-      this.courierId, this.courierFee, this.distrId, this.note, this.areaId);
+  SaveDialog(this.courierId, this.courierFee, this.distrId, this.note,
+      this.areaId, this.userId);
   @override
   State<StatefulWidget> createState() {
     return _SaveDialog();
@@ -157,6 +159,7 @@ class _SaveDialog extends State<SaveDialog> {
                                           fillColor: Colors.green,
                                           onPressed: () async {
                                             isLoading(true, model);
+
                                             OrderMsg msg =
                                                 await model.orderBalanceCheck(
                                                     widget.courierId,
@@ -167,6 +170,7 @@ class _SaveDialog extends State<SaveDialog> {
                                             if (model.orderBp() == 0 &&
                                                 getOrderList(model).length ==
                                                     0) {
+                                              model.isTypeing = false;
                                               Navigator.pop(context);
                                               isLoading(false, model);
                                               showReview(context, msg.soid,
@@ -344,8 +348,15 @@ class _SaveDialog extends State<SaveDialog> {
                   InkWell(
                     onTap: () {
                       Navigator.of(context).pop();
-                      Navigator.pushNamedAndRemoveUntil(
-                          context, '/bottomnav', (_) => false);
+                      print(
+                          'userId in BottomNav ReRoute in saveDialog :${widget.userId}');
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BottomNav(widget.userId),
+                            // ItemDetails(widget.itemData[widget.index])
+                          ),
+                          (_) => false);
                     },
                     child: Container(
                       height: 35.0,

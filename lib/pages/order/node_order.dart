@@ -168,8 +168,11 @@ class _NodeOrder extends State<NodeOrder> {
                                     flex: 1,
                                     child: Column(
                                       children: <Widget>[
-                                        CourierOrder(shipment, _nodeData.areaId,
-                                            _nodeData.distrId),
+                                        CourierOrder(
+                                            shipment,
+                                            _nodeData.areaId,
+                                            _nodeData.distrId,
+                                            model.userInfo.distrId),
                                       ],
                                     ))
                               ],

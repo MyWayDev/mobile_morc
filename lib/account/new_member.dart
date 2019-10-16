@@ -35,6 +35,7 @@ class _NewMemberPage extends State<NewMemberPage> {
   final GlobalKey<FormState> _newMemberFormKey = GlobalKey<FormState>();
   List<DropdownMenuItem> items = [];
   String selectedValue;
+  var areaSplit;
   @override
   void initState() {
     getAreas();
@@ -119,7 +120,7 @@ class _NewMemberPage extends State<NewMemberPage> {
   bool validateAndSave(String userId) {
     final form = _newMemberFormKey.currentState;
     isloading(true);
-    if (form.validate()) {
+    if (form.validate() && selected != null && areaSplit.first != null) {
       _newMemberForm.birthDate =
           DateFormat('yyyy-MM-dd').format(selected).toString();
       _newMemberForm.email = userId;
@@ -286,7 +287,6 @@ class _NewMemberPage extends State<NewMemberPage> {
                                     },
                                   ),*/
                                       TextFormField(
-                                        autovalidate: true,
                                         decoration: InputDecoration(
                                             labelText: 'اسم العضو',
                                             contentPadding: EdgeInsets.all(8.0),
@@ -297,8 +297,8 @@ class _NewMemberPage extends State<NewMemberPage> {
                                         validator: (value) {
                                           String _msg;
                                           value.length < 9
-                                              ? _msg = 'name error'
-                                              : _msg = '';
+                                              ? _msg = 'خطأ فى حفظ  اسم العضو'
+                                              : _msg = null;
                                           return _msg;
                                         },
                                         keyboardType: TextInputType.text,
@@ -312,6 +312,13 @@ class _NewMemberPage extends State<NewMemberPage> {
                                             contentPadding: EdgeInsets.all(8.0),
                                             icon: Icon(Icons.assignment_ind,
                                                 color: Colors.pink[500])),
+                                        validator: (value) {
+                                          String _msg;
+                                          value.length < 5
+                                              ? _msg = 'خطأ فى حفظ الرقم الوطنى'
+                                              : _msg = null;
+                                          return _msg;
+                                        },
                                         autocorrect: true,
                                         textCapitalization:
                                             TextCapitalization.sentences,
@@ -330,7 +337,16 @@ class _NewMemberPage extends State<NewMemberPage> {
                                               Icons.phone,
                                               color: Colors.pink[500],
                                             )),
-                                        keyboardType: TextInputType.number,
+                                        validator: (value) {
+                                          String _msg;
+                                          value.length < 8
+                                              ? _msg = ' خطأ فى حفظ  الهاتف'
+                                              : _msg = null;
+                                          return _msg;
+                                        },
+                                        keyboardType:
+                                            TextInputType.numberWithOptions(
+                                                signed: true),
                                         onSaved: (String value) {
                                           _newMemberForm.telephone = value;
                                         },
@@ -360,6 +376,13 @@ class _NewMemberPage extends State<NewMemberPage> {
                                               GroovinMaterialIcons.home,
                                               color: Colors.pink[500],
                                             )),
+                                        validator: (value) {
+                                          String _msg;
+                                          value.length < 9
+                                              ? _msg = 'خطأ فى حفظ العنوان'
+                                              : _msg = null;
+                                          return _msg;
+                                        },
                                         keyboardType: TextInputType.text,
                                         onSaved: (String value) {
                                           _newMemberForm.address = value;
@@ -389,7 +412,7 @@ class _NewMemberPage extends State<NewMemberPage> {
                                             onChanged: (value) {
                                               setState(() {
                                                 selectedValue = value;
-                                                var areaSplit =
+                                                areaSplit =
                                                     selectedValue.split('\ ');
                                                 _newMemberForm.areaId =
                                                     areaSplit.first;
@@ -487,12 +510,18 @@ class _NewMemberPage extends State<NewMemberPage> {
                                 ),
                               ),
                               onPressed: () async {
-                                validateAndSave(model.userInfo.distrId);
-                                String msg = await _saveNewMember(
-                                    model.userInfo.distrId);
+                                String msg = '';
+                                if (validateAndSave(model.userInfo.distrId)) {
+                                  msg = await _saveNewMember(
+                                      model.userInfo.distrId);
+                                  showReview(context, msg);
 
-                                _newMemberFormKey.currentState.reset();
-                                showReview(context, msg);
+                                  _newMemberFormKey.currentState.reset();
+                                }
+
+                                //  s
+
+                                //_newMemberFormKey.currentState.reset();
                               },
                             ),
                           ),
@@ -523,6 +552,7 @@ class _NewMemberPage extends State<NewMemberPage> {
     print(response.statusCode);
     print(msg);
     isloading(false);
+
     return msg;
   }
 

@@ -87,6 +87,7 @@ class _BottomNav extends State<BottomNav> with SingleTickerProviderStateMixin {
               distrId: int.parse(model.user.key),
             ),
             Report(model.user.distrId),
+            //  Cat(pdfUrl: model.settings.pdfUrl)
           ],
 
           // set the controller
@@ -101,7 +102,7 @@ class _BottomNav extends State<BottomNav> with SingleTickerProviderStateMixin {
           // set the tab bar as the child of bottom navigation bar
           child: TabBar(
             indicatorSize: TabBarIndicatorSize.tab,
-            indicatorWeight: 5,
+            indicatorWeight: 4,
             indicatorColor: Colors.pink[700],
             tabs: <Tab>[
               Tab(

@@ -107,15 +107,17 @@ class _EndOrder extends State<EndOrder> with SingleTickerProviderStateMixin {
       return Scaffold(
         resizeToAvoidBottomPadding: false,
         appBar: AppBar(
-          title:
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text(
-              model.userInfo.name,
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-          ]),
+          title: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  model.userInfo.name,
+                  style: TextStyle(
+                    fontSize: 15,
+                  ),
+                ),
+              ]),
           actions: <Widget>[],
           leading: model.isTypeing
               ? Container()

@@ -46,6 +46,9 @@ class _Report extends State<Report> {
 
   @override
   void initState() {
+    distrController.addListener(() {
+      setState(() {});
+    });
     _nodeData = null;
     memberReportSummary(widget.userId);
     super.initState();
@@ -80,12 +83,13 @@ class _Report extends State<Report> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-      appBar: AppBar(
-        title: Text('${widget.userId} '),
-      ),
+
       body: ModalProgressHUD(
-        child: Container(
-          child: buildReport(context),
+        child: Padding(
+          padding: EdgeInsets.only(top: 28),
+          child: Container(
+            child: buildReport(context),
+          ),
         ),
         inAsyncCall: _isloading,
         opacity: 0.6,
