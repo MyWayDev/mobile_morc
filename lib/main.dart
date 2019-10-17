@@ -8,7 +8,6 @@ import 'package:mor_release/pages/items/items.dart';
 import 'package:mor_release/pages/items/items.tabs.dart';
 import 'package:mor_release/models/ticket.dart';
 import 'package:mor_release/pages/messages/local_note.dart';
-
 import 'package:mor_release/pages/order/end_order.dart';
 import 'package:mor_release/pages/order/order.dart';
 import 'package:mor_release/scoped/connected.dart';

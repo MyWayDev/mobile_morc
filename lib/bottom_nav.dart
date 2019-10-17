@@ -28,7 +28,7 @@ class _BottomNav extends State<BottomNav> with SingleTickerProviderStateMixin {
   var subChanged;
   var subDel;
   List<Ticket> _msgsList = List();
-  String path = "flamelink/environments/stage/content/support/en-US/";
+  String path = "flamelink/environments/production/content/support/en-US/";
   FirebaseDatabase database = FirebaseDatabase.instance;
   DatabaseReference databaseReference;
 

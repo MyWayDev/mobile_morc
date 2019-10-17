@@ -81,7 +81,9 @@ class _LocalNotificationState extends State<LocalNotification> {
                                     ? Colors.blue[50]
                                     : Colors.blueGrey[50],
                                 child: ExpansionTile(
-                                  backgroundColor: Colors.blueGrey[50],
+                                  backgroundColor: !filteredNotify[index].seen
+                                      ? Colors.blue[50]
+                                      : Colors.blueGrey[50],
                                   key: PageStorageKey<Notify>(
                                       filteredNotify[index]),
                                   title:

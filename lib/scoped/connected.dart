@@ -11,7 +11,6 @@ import 'package:mor_release/models/item.dart';
 import 'package:mor_release/models/item.order.dart';
 import 'package:mor_release/models/lock.dart';
 import 'package:mor_release/models/sales.order.dart';
-
 import 'package:scoped_model/scoped_model.dart';
 import '../models/user.dart';
 import 'dart:convert';
@@ -34,7 +33,7 @@ class MainModel extends Model {
   List<GiftOrder> giftorderList = [];
   List<PromoOrder> promoOrderList = [];
   String token = '';
-  final String firebaseDb = "stage";
+  final String firebaseDb = "production";
   final String stage = "stage";
   final String updateDb = "stage";
   bool loading = false;
@@ -1376,11 +1375,12 @@ for( var i = 0 ; i < _list.length; i++){
         giftorderList.clear();
         promoOrderList.clear();
         signOut();
-        Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
-        /* Navigator.pop(context,
-                          MaterialPageRoute(
-                          builder: (context) =>
-                              LoginScreen()));*/
+        // Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+        // exit(0);
+        Navigator.pushReplacementNamed(context, '/');
+        //  Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+        //   Navigator.pop(
+        //   context, MaterialPageRoute(builder: (context) => LoginScreen()));
       }
     });
 
@@ -1421,18 +1421,19 @@ for( var i = 0 ; i < _list.length; i++){
         'flamelink/environments/$firebaseDb/content/lockScreen/en-US/lockApp');
     databaseReference.onValue.listen((event) async {
       appLocked = await event.snapshot.value;
-      //print('APPLOCKED-XXXXX:$appLocked');
+      print('APPLOCKED-XXXXX:$appLocked');
       if (appLocked) {
         itemorderlist.clear();
         giftorderList.clear();
         promoOrderList.clear();
         signOut();
+        //  SystemNavigator.pop();
         Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+        //Navigator.pushReplacementNamed(context, '/');
+        // Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
 
-        /* Navigator.pop(context,
-                          MaterialPageRoute(
-                          builder: (context) =>
-                              LoginScreen()));*/
+        //  Navigator.pop(
+        //   context, MaterialPageRoute(builder: (context) => LoginScreen()));
       }
     });
 

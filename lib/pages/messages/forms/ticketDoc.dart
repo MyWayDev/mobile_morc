@@ -74,10 +74,12 @@ class _DocFormState extends State<DocForm> {
     super.dispose();
   }
 
+  String errorText = 'يجب إدخال البيان';
   @override
   Widget build(BuildContext context) {
     return ModalProgressHUD(
       child: SingleChildScrollView(
+        primary: true,
         child: AlertDialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
@@ -91,7 +93,8 @@ class _DocFormState extends State<DocForm> {
                       ? FormBuilderCustomField(
                           attribute: "doc",
                           validators: [
-                            FormBuilderValidators.required(errorText: ""),
+                            FormBuilderValidators.required(
+                                errorText: errorText),
                           ],
                           formField: FormField(
                               onSaved: (value) {
@@ -110,7 +113,7 @@ class _DocFormState extends State<DocForm> {
                                         contentPadding: EdgeInsets.only(
                                             top: 2.0, bottom: 0.0),
                                         border: InputBorder.none,
-                                        errorText: field.errorText,
+                                        errorText: errorText,
                                       ),
                                       child: DropdownButton(
                                         hint: Center(
@@ -183,7 +186,7 @@ class _DocFormState extends State<DocForm> {
                           // readonly: true,
                           validators: [
                             FormBuilderValidators.required(
-                                errorText: "required"),
+                                errorText: errorText),
                             //)
                             //FormBuilderValidators.max(150),
                           ],
@@ -380,10 +383,11 @@ class _DocFormState extends State<DocForm> {
                           //  valueTransformer: (text) => num.tryParse(text),
                           validators: [
                             FormBuilderValidators.required(
-                                errorText: " required"),
-                            FormBuilderValidators.minLength(3, errorText: ""),
+                                errorText: errorText),
+                            FormBuilderValidators.minLength(3,
+                                errorText: errorText),
                             FormBuilderValidators.maxLength(300,
-                                errorText: 'too much text'),
+                                errorText: 'تجاوذ حد الادخل'),
                           ],
                         )
                       : Container(),
@@ -504,7 +508,7 @@ class _DocFormState extends State<DocForm> {
   void ticketPushToFirebase(Ticket ticket) {
     DatabaseReference ref = FirebaseDatabase.instance
         .reference()
-        .child('flamelink/environments/stage/content/support/en-US');
+        .child('flamelink/environments/production/content/support/en-US');
     var myRef = ref.child(DateTime.now().millisecondsSinceEpoch.toString());
     myRef.set({
       "inUse": false,

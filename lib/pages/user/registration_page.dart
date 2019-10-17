@@ -239,7 +239,7 @@ class _RegistrationPage extends State<RegistrationPage> {
               padding: const EdgeInsets.only(left: 20.0, right: 20.0),
               child: Row(
                 children: <Widget>[
-                  Container(
+                  /*   Container(
                     padding: EdgeInsets.only(right: 10.0),
                     child: FlatButton.icon(
                       label: Text('Test Code'),
@@ -252,7 +252,7 @@ class _RegistrationPage extends State<RegistrationPage> {
                         model.fbItemsUpdateFromDb();
                       },
                     ),
-                  ),
+                  ),*/
                   Expanded(
                     child: FlatButton(
                       shape: RoundedRectangleBorder(

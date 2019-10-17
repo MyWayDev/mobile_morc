@@ -20,7 +20,7 @@ class _TicketsState extends State<Tickets> {
   List<TicketType> types = [];
   ChatScreen msgs;
 
-  String path = "flamelink/environments/stage/content/support/en-US";
+  String path = "flamelink/environments/production/content/support/en-US";
 
   FirebaseDatabase database = FirebaseDatabase.instance;
 
@@ -70,8 +70,12 @@ class _TicketsState extends State<Tickets> {
   Widget build(BuildContext context) {
     filteredTickets = ticketsData.reversed
         .where((o) =>
-            o.open == true || closeDate(o.closeDate) == DateTime.now().month)
+            o.open == true ||
+            closeDate(o.closeDate) == DateTime.now().month ||
+            o.closeDate.toString() == '01/01/1900')
         .toList();
+    // filteredTickets
+    // ..sort((a, b) => a.open.toString().compareTo(b.open.toString()));
 
     return Scaffold(
       floatingActionButton: widget.distrId > 5
@@ -434,7 +438,7 @@ class _TicketsState extends State<Tickets> {
   getTicketTypes() async {
     DataSnapshot snapshot = await database
         .reference()
-        .child('flamelink/environments/stage/content/ticketType/en-US/')
+        .child('flamelink/environments/production/content/ticketType/en-US/')
         .once();
     Map<dynamic, dynamic> typeList = snapshot.value;
     List list = typeList.values.toList();
@@ -528,7 +532,9 @@ class _TicketsState extends State<Tickets> {
   }
 
   _closeTicket(String key, bool value) {
-    databaseReference.child(key).update({'open': value});
+    databaseReference
+        .child(key)
+        .update({'open': value, 'closeDate': DateTime.now()});
   }
 }
 
