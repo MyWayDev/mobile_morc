@@ -532,9 +532,7 @@ class _TicketsState extends State<Tickets> {
   }
 
   _closeTicket(String key, bool value) {
-    databaseReference
-        .child(key)
-        .update({'open': value, 'closeDate': DateTime.now()});
+    databaseReference.child(key).update({'open': value});
   }
 }
 

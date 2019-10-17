@@ -546,6 +546,7 @@ class _NewMemberPage extends State<NewMemberPage> {
     if (response.statusCode == 201) {
       body = Id.fromJson(json.decode(response.body));
       msg = body.id;
+      print("body.id${body.id}");
     } else {
       msg = "خطأ فى حفظ البيانات";
     }
@@ -574,7 +575,7 @@ class _NewMemberPage extends State<NewMemberPage> {
                   Column(
                     children: <Widget>[
                       Text(
-                        ' رقم العضويه: $msg ',
+                        '  رقم العضويه:$msg',
                         style: TextStyle(
                             fontSize: 16.0,
                             color: Colors.grey,

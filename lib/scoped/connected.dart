@@ -22,7 +22,7 @@ import 'package:firebase_core/firebase_core.dart';
 
 class MainModel extends Model {
   // ** items //** */
-  final String _version = '3.0r'; //!Modify for every release version./.
+  final String _version = '3.1r'; //!Modify for every release version./.
   final FirebaseDatabase database = FirebaseDatabase.instance;
   DatabaseReference databaseReference;
   int noteCount;

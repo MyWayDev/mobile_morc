@@ -40,7 +40,7 @@ class LoginBanner extends StatelessWidget {
                     color: Theme.of(context).primaryColor),
               ),
               Text(
-                "نسخه تجريبيه beta-2.80 ",
+                "نسخه تجريبيه beta-3.1r ",
                 textDirection: TextDirection.rtl,
                 style: TextStyle(
                     fontSize: 15,
