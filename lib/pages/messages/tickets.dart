@@ -342,16 +342,8 @@ class _TicketsState extends State<Tickets> {
                                                     _closeTicket(
                                                         searchResult[index].key,
                                                         value);
-
-                                                    //controller.selection.base;
-                                                    //   controller.clear();
-                                                    //  print("txt:$txt");
-                                                    // controller.text = txt;
                                                     onSearchTextChanged(
                                                         controller.text);
-                                                    /* setState(() {s
-                                  filteredTickets[index].open = value;
-                                });*/
                                                   },
                                                   activeTrackColor:
                                                       Colors.white,
@@ -488,7 +480,6 @@ class _TicketsState extends State<Tickets> {
                                                 ),
                                               ),
                                             ),
-                                            // Text(ticket.fromSupport.toString())
                                           ],
                                         )
                                       : Container()
