@@ -17,6 +17,7 @@ class Tickets extends StatefulWidget {
 class _TicketsState extends State<Tickets> {
   List<Ticket> ticketsData = List();
   List<Ticket> filteredTickets = [];
+  List<Ticket> searchResult = [];
   List<TicketType> types = [];
   ChatScreen msgs;
 
@@ -29,16 +30,19 @@ class _TicketsState extends State<Tickets> {
   var subAdd;
   var subChanged;
   var subDel;
+  var searchChanged;
   //var subSelect;
   List<DropdownMenuItem> items = [];
 
   String selectedValue;
   bool isSwitched = true;
   TextEditingController controller = new TextEditingController();
+  FocusNode searchNode;
 
   @override
   void initState() {
     super.initState();
+    searchNode = FocusNode();
     getTicketTypes();
 
     databaseReference = database.reference().child(path);
@@ -50,6 +54,7 @@ class _TicketsState extends State<Tickets> {
         : query = databaseReference.child("/");
     subAdd = query.onChildAdded.listen(_onItemEntryAdded);
     subChanged = query.onChildChanged.listen(_onItemEntryChanged);
+
     subDel = query.onChildRemoved.listen(_onItemEntryDeleted);
 
     /* WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -63,6 +68,7 @@ class _TicketsState extends State<Tickets> {
     subAdd?.cancel();
     subChanged?.cancel();
     subDel?.cancel();
+    searchNode.dispose();
     // subSelect?.cancel();
   }
 
@@ -74,141 +80,353 @@ class _TicketsState extends State<Tickets> {
             closeDate(o.closeDate) == DateTime.now().month ||
             o.closeDate.toString() == '01/01/1900')
         .toList();
+
     // filteredTickets
     // ..sort((a, b) => a.open.toString().compareTo(b.open.toString()));
 
     return Scaffold(
-      floatingActionButton: widget.distrId > 5
-          ? FloatingActionButton(
-              onPressed: () {
-                _asyncInputDialog(context);
-              },
-              child: Icon(
-                Icons.add_comment,
-                size: 28,
-              ),
-              backgroundColor: Colors.pink[600],
-            )
-          : null,
-      floatingActionButtonLocation:
-          widget.distrId > 5 ? FloatingActionButtonLocation.endDocked : null,
-      body: Padding(
-        padding: EdgeInsets.only(top: 10),
-        child: Stack(
+        floatingActionButton: widget.distrId > 5
+            ? FloatingActionButton(
+                onPressed: () {
+                  _asyncInputDialog(context);
+                },
+                child: Icon(
+                  Icons.add_comment,
+                  size: 28,
+                ),
+                backgroundColor: Colors.pink[600],
+              )
+            : null,
+        floatingActionButtonLocation:
+            widget.distrId > 5 ? FloatingActionButtonLocation.endDocked : null,
+        body: Column(
           children: <Widget>[
-            Container(
-                child: ListView.builder(
-              padding: EdgeInsets.all(5),
-              itemBuilder: (context, index) {
-                return Card(
-                  color: !filteredTickets[index].open
-                      ? Colors.greenAccent[100]
-                      : Colors.pink[100],
-                  child: Column(
-                    children: <Widget>[
-                      ListTile(
-                          leading: Icon(
-                            Icons.vpn_key,
-                            size: 21,
-                            color: Colors.pink[900],
-                          ),
-                          title: Text(
-                            filteredTickets[index].member,
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          subtitle: Row(
-                            children: <Widget>[
-                              Icon(
-                                Icons.access_time,
-                                size: 21,
-                                color: Colors.grey,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(right: 5),
-                              ),
-                              Text(
-                                prefix0.DateFormat("H:mm").format(
-                                    DateTime.parse(
-                                        filteredTickets[index].openDate)),
-                                style: TextStyle(fontSize: 13),
-                              ),
-                            ],
-                          ),
-                          trailing: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Icon(
-                                Icons.calendar_today,
-                                size: 20,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(bottom: 6),
-                              ),
-                              Text(
-                                prefix0.DateFormat("dd-MM-yyy").format(
-                                    DateTime.parse(
-                                        filteredTickets[index].openDate)),
-                                style: TextStyle(fontSize: 13),
-                              ),
-                            ],
-                          )),
-                      ExpansionTile(
-                        leading: widget.distrId <= 5
-                            ? ConstrainedBox(
-                                constraints: BoxConstraints.tight(Size(45, 40)),
-                                child: Switch(
-                                  value: filteredTickets[index].open,
-                                  onChanged: (value) {
-                                    _closeTicket(
-                                        filteredTickets[index].key, value);
-                                    /* setState(() {
+            Padding(
+              padding: EdgeInsets.only(top: 18),
+              child: Container(
+                height: 58,
+                color: Colors.transparent,
+                child: Card(
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.search,
+                      size: 28.0,
+                      // color: Colors.pink[900],
+                    ),
+                    title: TextField(
+                      controller: controller,
+                      decoration: InputDecoration(
+                        hintText: "",
+                        border: InputBorder.none,
+                      ),
+                      // style: TextStyle(fontSize: 18.0),
+                      onChanged: onSearchTextChanged,
+                    ),
+                    trailing: IconButton(
+                      alignment: AlignmentDirectional.centerEnd,
+                      icon: Icon(Icons.cancel, size: 24.0),
+                      onPressed: () {
+                        controller.clear();
+                        onSearchTextChanged('');
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+                child: searchResult.length == 0 || controller.text.isEmpty
+                    ? Padding(
+                        padding: EdgeInsets.only(top: 1),
+                        child: Stack(
+                          children: <Widget>[
+                            Container(
+                                child: ListView.builder(
+                              padding: EdgeInsets.all(1),
+                              itemBuilder: (context, index) {
+                                return Card(
+                                  color: !filteredTickets[index].open
+                                      ? Colors.greenAccent[100]
+                                      : Colors.pink[100],
+                                  child: Column(
+                                    children: <Widget>[
+                                      ListTile(
+                                          leading: Icon(
+                                            Icons.vpn_key,
+                                            size: 21,
+                                            color: Colors.pink[900],
+                                          ),
+                                          title: Text(
+                                            filteredTickets[index].member,
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                          subtitle: Row(
+                                            children: <Widget>[
+                                              Icon(
+                                                Icons.access_time,
+                                                size: 21,
+                                                color: Colors.grey,
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    EdgeInsets.only(right: 5),
+                                              ),
+                                              Text(
+                                                prefix0.DateFormat("H:mm")
+                                                    .format(DateTime.parse(
+                                                        filteredTickets[index]
+                                                            .openDate)),
+                                                style: TextStyle(fontSize: 13),
+                                              ),
+                                            ],
+                                          ),
+                                          trailing: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: <Widget>[
+                                              Icon(
+                                                Icons.calendar_today,
+                                                size: 20,
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    EdgeInsets.only(bottom: 6),
+                                              ),
+                                              Text(
+                                                prefix0.DateFormat("dd-MM-yyy")
+                                                    .format(DateTime.parse(
+                                                        filteredTickets[index]
+                                                            .openDate)),
+                                                style: TextStyle(fontSize: 13),
+                                              ),
+                                            ],
+                                          )),
+                                      ExpansionTile(
+                                        leading: widget.distrId <= 5
+                                            ? ConstrainedBox(
+                                                constraints:
+                                                    BoxConstraints.tight(
+                                                        Size(45, 40)),
+                                                child: Switch(
+                                                  value: filteredTickets[index]
+                                                      .open,
+                                                  onChanged: (value) {
+                                                    _closeTicket(
+                                                        filteredTickets[index]
+                                                            .key,
+                                                        value);
+                                                    /* setState(() {
                                   filteredTickets[index].open = value;
                                 });*/
-                                  },
-                                  activeTrackColor: Colors.white,
-                                  activeColor: Colors.pink[700],
-                                  inactiveThumbColor: Colors.grey,
-                                ),
-                              )
-                            : Icon(
-                                Icons.add_comment,
-                              ),
-                        backgroundColor: !filteredTickets[index].open
-                            ? Colors.greenAccent[100]
-                            : Colors.pink[100],
-                        key: PageStorageKey<Ticket>(filteredTickets[index]),
-                        title: buildItem(context, filteredTickets[index]),
-                        children: <Widget>[
-                          buildTicketInfo(context, filteredTickets[index]),
-                        ],
+                                                  },
+                                                  activeTrackColor:
+                                                      Colors.white,
+                                                  activeColor: Colors.pink[700],
+                                                  inactiveThumbColor:
+                                                      Colors.grey,
+                                                ),
+                                              )
+                                            : Icon(
+                                                Icons.add_comment,
+                                              ),
+                                        backgroundColor:
+                                            !filteredTickets[index].open
+                                                ? Colors.greenAccent[100]
+                                                : Colors.pink[100],
+                                        key: PageStorageKey<Ticket>(
+                                            filteredTickets[index]),
+                                        title: buildItem(
+                                            context, filteredTickets[index]),
+                                        children: <Widget>[
+                                          buildTicketInfo(
+                                              context, filteredTickets[index]),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                );
+                              },
+                              itemCount: filteredTickets.length,
+                            )),
+                            Positioned(
+                              child: isLoading
+                                  ? Container(
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    themeColor)),
+                                      ),
+                                      color: Colors.white.withOpacity(0.8),
+                                    )
+                                  : Container(),
+                            )
+                          ],
+                        ),
                       )
-                    ],
-                  ),
-                );
-              },
-              itemCount: filteredTickets.length,
-            )),
-            Positioned(
-              child: isLoading
-                  ? Container(
-                      child: Center(
-                        child: CircularProgressIndicator(
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(themeColor)),
-                      ),
-                      color: Colors.white.withOpacity(0.8),
-                    )
-                  : Container(),
-            )
+                    : Padding(
+                        padding: EdgeInsets.only(top: 1),
+                        child: Stack(
+                          children: <Widget>[
+                            Container(
+                                child: ListView.builder(
+                              padding: EdgeInsets.all(1),
+                              itemBuilder: (context, index) {
+                                return Card(
+                                  color: !searchResult[index].open
+                                      ? Colors.greenAccent[100]
+                                      : Colors.pink[100],
+                                  child: Column(
+                                    children: <Widget>[
+                                      ListTile(
+                                          leading: Icon(
+                                            Icons.vpn_key,
+                                            size: 21,
+                                            color: Colors.pink[900],
+                                          ),
+                                          title: Text(
+                                            searchResult[index].member,
+                                            style: TextStyle(fontSize: 14),
+                                          ),
+                                          subtitle: Row(
+                                            children: <Widget>[
+                                              Icon(
+                                                Icons.access_time,
+                                                size: 21,
+                                                color: Colors.grey,
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    EdgeInsets.only(right: 5),
+                                              ),
+                                              Text(
+                                                prefix0.DateFormat("H:mm")
+                                                    .format(DateTime.parse(
+                                                        searchResult[index]
+                                                            .openDate)),
+                                                style: TextStyle(fontSize: 13),
+                                              ),
+                                            ],
+                                          ),
+                                          trailing: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: <Widget>[
+                                              Icon(
+                                                Icons.calendar_today,
+                                                size: 20,
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    EdgeInsets.only(bottom: 6),
+                                              ),
+                                              Text(
+                                                prefix0.DateFormat("dd-MM-yyy")
+                                                    .format(DateTime.parse(
+                                                        searchResult[index]
+                                                            .openDate)),
+                                                style: TextStyle(fontSize: 13),
+                                              ),
+                                            ],
+                                          )),
+                                      ExpansionTile(
+                                        leading: widget.distrId <= 5
+                                            ? ConstrainedBox(
+                                                constraints:
+                                                    BoxConstraints.tight(
+                                                        Size(45, 40)),
+                                                child: Switch(
+                                                  value:
+                                                      searchResult[index].open,
+                                                  onChanged: (value) {
+                                                    _closeTicket(
+                                                        searchResult[index].key,
+                                                        value);
+
+                                                    //controller.selection.base;
+                                                    //   controller.clear();
+                                                    //  print("txt:$txt");
+                                                    // controller.text = txt;
+                                                    onSearchTextChanged(
+                                                        controller.text);
+                                                    /* setState(() {s
+                                  filteredTickets[index].open = value;
+                                });*/
+                                                  },
+                                                  activeTrackColor:
+                                                      Colors.white,
+                                                  activeColor: Colors.pink[700],
+                                                  inactiveThumbColor:
+                                                      Colors.grey,
+                                                ),
+                                              )
+                                            : Icon(
+                                                Icons.add_comment,
+                                              ),
+                                        backgroundColor:
+                                            !searchResult[index].open
+                                                ? Colors.greenAccent[100]
+                                                : Colors.pink[100],
+                                        key: PageStorageKey<Ticket>(
+                                            searchResult[index]),
+                                        title: buildItem(
+                                            context, searchResult[index]),
+                                        children: <Widget>[
+                                          buildTicketInfo(
+                                              context, searchResult[index]),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                );
+                              },
+                              itemCount: searchResult.length,
+                            )),
+                            Positioned(
+                              child: isLoading
+                                  ? Container(
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    themeColor)),
+                                      ),
+                                      color: Colors.white.withOpacity(0.8),
+                                    )
+                                  : Container(),
+                            )
+                          ],
+                        ),
+                      ))
           ],
-        ),
-      ),
-    );
+        ));
+  }
+
+  onSearchTextChanged(String text) {
+    searchResult.clear();
+    if (text.isEmpty) {
+      setState(() {});
+      return;
+    }
+//!add .where before foreach to filter open and closed tickets in different pages
+
+    searchResult = ticketsData
+        .where((ticket) =>
+                ticket.member.contains(text) ||
+                ticket.ticketId.contains(text) ||
+                ticket.docId.contains(text) ||
+                prefix0.DateFormat("dd-MM-yyy")
+                    .format(DateTime.parse(ticket.openDate))
+                    .contains(text) ||
+                ticket.type.contains(text) //searchResult.add(ticket);
+            )
+        .toList();
+    setState(() {});
   }
 
   bool isLoading = false;
   Widget buildItem(BuildContext context, Ticket ticket) {
-    if (widget.distrId <= 6) {
+    if (widget.distrId <= 5) {
       return !ticket.inUse
           ? Container(
               child: RaisedButton(
@@ -432,6 +650,7 @@ class _TicketsState extends State<Tickets> {
     setState(() {
       ticketsData[ticketsData.indexOf(oldEntry)] =
           Ticket.fromSnapshot(event.snapshot);
+      onSearchTextChanged(controller.text);
     });
   }
 
