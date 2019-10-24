@@ -1,6 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:groovin_material_icons/groovin_material_icons.dart';
+import 'package:html2md/html2md.dart';
 import 'package:intl/intl.dart' as prefix0;
 import 'package:mor_release/models/ticket.dart';
 import 'package:mor_release/pages/const.dart';
@@ -404,6 +405,7 @@ class _TicketsState extends State<Tickets> {
 
     searchResult = ticketsData
         .where((ticket) =>
+                ticket.open.toString().contains(text) ||
                 ticket.member.contains(text) ||
                 ticket.ticketId.contains(text) ||
                 ticket.docId.contains(text) ||
