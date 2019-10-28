@@ -1,7 +1,8 @@
 import 'package:firebase_database/firebase_database.dart';
 
 class Courier {
-  String id;
+  String
+      id; //! should change to int with flamelink db update consideration.  28/10/2019!!
   String courierId;
   String name;
   List service;

@@ -45,12 +45,12 @@ class _BottomNav extends State<BottomNav> with SingleTickerProviderStateMixin {
 
     subAdd = query.onChildAdded.listen(_onMessageEntryAdded);
     subChanged = query.onChildChanged.listen(_onItemEntryChanged);
-    super.initState();
 
 //! add admin conditions here for 1 to 5 users..
 
     // Initialize the Tab Controller
     tabController = new TabController(length: 4, vsync: this);
+    super.initState();
   }
 
   @override

@@ -22,7 +22,6 @@ class _CatState extends State<Cat> {
 
   @override
   void initState() {
-    super.initState();
     /*
     createFileOfPdfUrl().then((f) {
       setState(() {
@@ -34,6 +33,7 @@ class _CatState extends State<Cat> {
     downloadPdfFile(widget.pdfUrl).then((f) {
       pathPDF = f.path;
     });
+    super.initState();
   }
 
   @override

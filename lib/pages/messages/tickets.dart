@@ -42,7 +42,6 @@ class _TicketsState extends State<Tickets> {
 
   @override
   void initState() {
-    super.initState();
     searchNode = FocusNode();
     getTicketTypes();
 
@@ -61,16 +60,17 @@ class _TicketsState extends State<Tickets> {
     /* WidgetsBinding.instance.addPostFrameCallback((_) {
       _asyncInputDialog(context);
     });*/
+    super.initState();
   }
 
   @override
   void dispose() {
-    super.dispose();
     subAdd?.cancel();
     subChanged?.cancel();
     subDel?.cancel();
     searchNode.dispose();
     // subSelect?.cancel();
+    super.dispose();
   }
 
   @override
@@ -81,7 +81,7 @@ class _TicketsState extends State<Tickets> {
             closeDate(o.closeDate) == DateTime.now().month ||
             o.closeDate.toString() == '01/01/1900')
         .toList();
-
+    filteredTickets.sort((a, b) => b.fromClient.compareTo(a.fromClient));
     // filteredTickets
     // ..sort((a, b) => a.open.toString().compareTo(b.open.toString()));
 

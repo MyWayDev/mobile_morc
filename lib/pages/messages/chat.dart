@@ -267,6 +267,7 @@ class ChatScreenState extends State<ChatScreen> {
       sumRef.update({
         'fromClient': _nonseenToPeerMsgsCount(),
         'fromSupport': 0,
+        //'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
       });
     } else {
       sumRef.update({

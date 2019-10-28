@@ -15,6 +15,7 @@ class Ticket {
   String content;
   int fromClient;
   int fromSupport;
+  int timestamp;
   List items;
 
   Ticket(
@@ -31,6 +32,7 @@ class Ticket {
       this.content,
       this.fromClient,
       this.fromSupport,
+      this.timestamp,
       this.items});
 
   Ticket.fromSnapshot(DataSnapshot snapshot)
@@ -48,6 +50,7 @@ class Ticket {
         closeDate = snapshot.value['closeDate'],
         docId = snapshot.value['docId'] ?? "",
         content = snapshot.value['content'] ?? "",
+        timestamp = snapshot.value['timestamp'] ?? 0,
         items = snapshot.value['items'] ?? [];
 
   factory Ticket.fromJson(Map<dynamic, dynamic> json) {
@@ -65,6 +68,7 @@ class Ticket {
       closeDate: json['closeDate'],
       docId: json['docId'] ?? "",
       content: json['content'] ?? "",
+      timestamp: json['timestamp'] ?? 0,
       items: json['items'] ?? [],
     );
   }

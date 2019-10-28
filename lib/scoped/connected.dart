@@ -1127,6 +1127,8 @@ for(var area in areas){
 
   List companies;
   Future<List> courierList(String areaid) async {
+    //! this code should be updated and changed because evey time flamelink updates courier or adds area
+    //! id field in flamelink changes from string to int and companies list doesnt read!!
     DataSnapshot snapshot = await FirebaseDatabase.instance
         .reference()
         .child(
